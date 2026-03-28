@@ -2,7 +2,7 @@ import { defineConfig } from "oxfmt";
 
 export default defineConfig({
     endOfLine: "crlf",
-    printWidth: 180,
+    printWidth: 150,
     semi: true,
     singleQuote: false,
     tabWidth: 4,

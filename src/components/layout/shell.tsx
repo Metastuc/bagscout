@@ -1,0 +1,15 @@
+import { TopNavBar } from "#/views/top-nav-bar/index.tsx";
+import { SideNavBar } from "#/views/side-nav-bar/index.tsx";
+import { BaseLayout } from "./base";
+import { BottomNavBar } from "#/views/bottom-nav-bar/index.tsx";
+
+export function ShellLayout({ children }: { children: React.ReactNode }) {
+    return (
+        <section className="relative h-dvh">
+            <TopNavBar />
+            <SideNavBar />
+            <BaseLayout>{children}</BaseLayout>
+            <BottomNavBar />
+        </section>
+    );
+}

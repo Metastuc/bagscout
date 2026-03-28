@@ -1,4 +1,4 @@
-export function mergeBagsTokenWithPool(bagsTokens: Array<TokenInfo>, geckoPools: Array<PoolInfo>) {
+export function mergeBagsTokenWithPool(bagsTokens: Array<BagsTokenInfo>, geckoPools: Array<BagsPoolInfo>): Array<BagsTokenWithPool> {
     const poolMap = new Map(geckoPools.map((pool) => [pool.tokenMint, pool]));
 
     return bagsTokens.map((token) => {

@@ -4,9 +4,14 @@ import { withDependencies } from "../modules";
 import { getPoolsFromBags, getTokensFromBags } from "#/modules/services/bags.ts";
 import { mergeBagsTokenWithPool } from "#/modules/utils/merge-bags-pool.ts";
 import { getGeckoPool } from "#/modules/services/gecko.ts";
+import { getAllTokensQueryOptions } from "#/api/get-tokens.ts";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/")({
-    component: RouteComponent
+    component: RouteComponent,
+    async loader({ context }) {
+        await context.queryClient.ensureQueryData(getAllTokensQueryOptions());
+    }
 });
 
 const getData = createServerFn({ method: "GET" }).handler(async () =>
@@ -44,7 +49,11 @@ const getData = createServerFn({ method: "GET" }).handler(async () =>
 );
 
 function RouteComponent() {
-    getData();
+    // getData();
+
+    const allTokensQuery = useSuspenseQuery(getAllTokensQueryOptions());
+
+    console.log(allTokensQuery);
 
     return <div>Hello "/"!</div>;
 }

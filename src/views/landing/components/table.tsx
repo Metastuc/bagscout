@@ -146,11 +146,11 @@ export function DataTable({ tokens }: DataTableProps) {
     const rowVirtualizer = useVirtualizer({
         count: table.getRowModel().rows.length,
         getScrollElement: () => parentRef.current,
-        estimateSize: () => 50,
+        estimateSize: () => 75,
     });
 
     return (
-        <section className="border border-yellow-800 size-full">
+        <section className="size-full">
             <div className="size-full overflow-auto">
                 <header
                     className="grid border-y"
@@ -174,25 +174,21 @@ export function DataTable({ tokens }: DataTableProps) {
 
                             return (
                                 <div
+                                    className="grid border-b"
                                     key={row.id}
                                     style={{
+                                        gridTemplateColumns: `repeat(${table.getAllColumns().length}, minmax(0, 1fr))`,
+                                        height: `${virtualRow.size}px`,
+                                        left: 0,
                                         position: "absolute",
                                         top: 0,
-                                        left: 0,
-                                        width: "100%",
                                         transform: `translateY(${virtualRow.start}px)`,
+                                        width: "100%",
                                     }}
                                 >
-                                    <div
-                                        className="grid border-b"
-                                        style={{
-                                            gridTemplateColumns: `repeat(${table.getAllColumns().length}, minmax(0, 1fr))`,
-                                        }}
-                                    >
-                                        {row.getVisibleCells().map((cell) => (
-                                            <div key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</div>
-                                        ))}
-                                    </div>
+                                    {row.getVisibleCells().map((cell) => (
+                                        <div key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</div>
+                                    ))}
                                 </div>
                             );
                         })}

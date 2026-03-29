@@ -27,7 +27,7 @@ const getTokensServerFn = createServerFn({ method: "GET" }).handler(
                             deps.logger.error({ msg: (error as Error).message, data: { stack: (error as Error).stack } });
                             return { ...token, geckoData: undefined };
                         }
-                    })
+                    }),
                 );
 
                 deps.cache.writeCache(allTokens);
@@ -36,11 +36,11 @@ const getTokensServerFn = createServerFn({ method: "GET" }).handler(
                 deps.logger.error({ msg: (error as Error).message, data: { stack: (error as Error).stack } });
                 return { tokens: [] };
             }
-        })
+        }),
 );
 
 export const getAllTokensQueryOptions = () =>
     queryOptions({
         queryKey: ["all_tokens"],
-        queryFn: () => getTokensServerFn()
+        queryFn: () => getTokensServerFn(),
     });

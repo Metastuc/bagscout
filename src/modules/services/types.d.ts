@@ -24,7 +24,7 @@ declare global {
         description: string;
         image: string;
         tokenMint: string;
-        status: "PRE_LAUNCH" | "LAUNCHED" | "ENDED";
+        status: "PRE_LAUNCH" | "PRE_GRAD" | "MIGRATING" | "MIGRATED";
         twitter: string;
         website: string;
         launchSignature: string;

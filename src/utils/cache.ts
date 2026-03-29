@@ -36,5 +36,5 @@ function isCacheValid(cache: CacheData | null) {
 export const cacheUtils = {
     readCache,
     writeCache,
-    isCacheValid
+    isCacheValid,
 };

@@ -10,11 +10,11 @@ export function getRouter() {
         context: { queryClient },
         scrollRestoration: true,
         defaultPreload: "intent",
-        defaultPreloadStaleTime: 0
+        defaultPreloadStaleTime: 0,
     });
     setupRouterSsrQueryIntegration({
         router,
-        queryClient
+        queryClient,
     });
     return router;
 }

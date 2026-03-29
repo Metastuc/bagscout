@@ -6,6 +6,6 @@ export default defineConfig({
     semi: true,
     singleQuote: false,
     tabWidth: 4,
-    trailingComma: "none",
-    useTabs: false
+    trailingComma: "all",
+    useTabs: false,
 });

@@ -29,7 +29,7 @@ function formatLog({
     module = "app",
     msg = "",
     tag = "log",
-    timestamp = new Date().toISOString()
+    timestamp = new Date().toISOString(),
 }: LogInput): string {
     return (
         `[${timestamp}][${module}][${tag}][${id}]` +
@@ -61,7 +61,7 @@ function createBaseLogger(context: Partial<LogInput> = {}) {
         const merged = {
             ...context,
             ...input,
-            eventId: input.eventId ?? context.eventId
+            eventId: input.eventId ?? context.eventId,
         };
         console.log(
             "\n\n\n" +
@@ -69,9 +69,9 @@ function createBaseLogger(context: Partial<LogInput> = {}) {
                     colors: true,
                     depth: null,
                     showHidden: true,
-                    showProxy: true
+                    showProxy: true,
                 }) +
-                "\n\n\n"
+                "\n\n\n",
         );
     };
 
@@ -86,7 +86,7 @@ function createBaseLogger(context: Partial<LogInput> = {}) {
         ...context,
         ...input,
         timestamp: input.timestamp ?? new Date().toISOString(),
-        id: input.id ?? generateLogId()
+        id: input.id ?? generateLogId(),
     });
 
     // Create child logger with pre-filled context

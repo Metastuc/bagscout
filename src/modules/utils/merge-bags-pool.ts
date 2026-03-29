@@ -7,7 +7,7 @@ export function mergeBagsTokenWithPool(bagsTokens: Array<BagsTokenInfo>, geckoPo
             ...token,
             dbcPoolKey: pool?.dbcPoolKey,
             dammV2PoolKey: pool?.dammV2PoolKey ?? null,
-            poolAddress: pool?.dammV2PoolKey ?? pool?.dbcPoolKey
+            poolAddress: pool?.dammV2PoolKey ?? pool?.dbcPoolKey,
         };
     });
 }

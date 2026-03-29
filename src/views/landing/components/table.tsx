@@ -3,6 +3,7 @@ import { flexRender, getCoreRowModel, useReactTable, type ColumnDef } from "@tan
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useRef } from "react";
 import { computeTokenAge, formatPriceToUSD, formatTokenNumber } from "../utils";
+import { GRID_COLUMNS } from "../constants";
 
 interface DataTableProps {
     tokens: Array<MergedBagsTokenWithPool>;
@@ -86,7 +87,7 @@ const tableColumns: Array<ColumnDef<MergedBagsTokenWithPool>> = [
             });
         },
 
-        header: "Volume 24h",
+        header: "Volume",
 
         id: "volume",
     },
@@ -156,8 +157,14 @@ const tableColumns: Array<ColumnDef<MergedBagsTokenWithPool>> = [
     },
 ];
 
+function shouldAlignRight(columnId: string): boolean {
+    const noTextAlignment = ["token", "rank"];
+    return !noTextAlignment.includes(columnId);
+}
+
 export function DataTable({ tokens }: DataTableProps) {
     const parentRef = useRef<HTMLDivElement>(null);
+    const noTextAlignment = ["token", "rank"];
 
     const table = useReactTable({
         data: tokens,
@@ -172,18 +179,18 @@ export function DataTable({ tokens }: DataTableProps) {
     });
 
     return (
-        <section className="size-full">
+        <section className="size-full overflow-hidden">
             <div className="size-full overflow-auto">
                 <header
-                    className="grid border-y"
+                    className="grid min-w-full"
                     style={{
-                        gridTemplateColumns: `repeat(${table.getAllColumns().length}, minmax(0, 1fr))`,
+                        gridTemplateColumns: GRID_COLUMNS,
                     }}
                 >
                     {table.getHeaderGroups().map((headerGroup) =>
                         headerGroup.headers.map((header) => (
-                            <div key={header.id}>
-                                <span>{flexRender(header.column.columnDef.header, header.getContext())}</span>
+                            <div key={header.id} className={cn("py-2 px-3", shouldAlignRight(header.id) ? "text-right" : "text-left")}>
+                                <span className="uppercase">{flexRender(header.column.columnDef.header, header.getContext())}</span>
                             </div>
                         )),
                     )}
@@ -196,20 +203,21 @@ export function DataTable({ tokens }: DataTableProps) {
 
                             return (
                                 <div
-                                    className="grid border-b"
+                                    className="grid border-y min-w-full"
                                     key={row.id}
                                     style={{
-                                        gridTemplateColumns: `repeat(${table.getAllColumns().length}, minmax(0, 1fr))`,
+                                        gridTemplateColumns: GRID_COLUMNS,
                                         height: `${virtualRow.size}px`,
                                         left: 0,
                                         position: "absolute",
                                         top: 0,
                                         transform: `translateY(${virtualRow.start}px)`,
-                                        width: "100%",
                                     }}
                                 >
                                     {row.getVisibleCells().map((cell) => (
-                                        <div key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</div>
+                                        <div key={cell.id} className={cn("py-2 px-3", shouldAlignRight(cell.id) ? "text-right" : "text-left")}>
+                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                        </div>
                                     ))}
                                 </div>
                             );

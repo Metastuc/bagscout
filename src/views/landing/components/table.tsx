@@ -1,6 +1,7 @@
+import { useNavigate } from "@tanstack/react-router";
 import { flexRender, getCoreRowModel, useReactTable, type ColumnDef } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { useRef } from "react";
+import { memo, useRef } from "react";
 
 import { cn } from "#/lib/utils.ts";
 
@@ -163,8 +164,9 @@ function shouldAlignRight(columnId: string): boolean {
     return !["token", "rank"].includes(columnId);
 }
 
-export function DataTable({ tokens }: DataTableProps) {
+export const DataTable = memo(function ({ tokens }: DataTableProps) {
     const parentRef = useRef<HTMLDivElement>(null);
+    const navigate = useNavigate({ from: "/" });
 
     const table = useReactTable({
         data: tokens,
@@ -213,6 +215,11 @@ export function DataTable({ tokens }: DataTableProps) {
                                         top: 0,
                                         transform: `translateY(${virtualRow.start}px)`,
                                     }}
+                                    onClick={() => {
+                                        navigate({
+                                            search: (previous) => ({ ...previous, token: row.original.tokenMint }),
+                                        });
+                                    }}
                                 >
                                     {row.getVisibleCells().map((cell) => (
                                         <div key={cell.id} className={cn("py-2 px-3", shouldAlignRight(cell.id) ? "text-right" : "text-left")}>
@@ -227,4 +234,4 @@ export function DataTable({ tokens }: DataTableProps) {
             </div>
         </section>
     );
-}
+});

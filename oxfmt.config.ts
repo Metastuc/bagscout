@@ -8,4 +8,11 @@ export default defineConfig({
     tabWidth: 4,
     trailingComma: "all",
     useTabs: false,
+
+    sortImports: {
+        groups: ["builtin", "external", "internal", ["parent", "sibling", "index"]],
+        ignoreCase: true,
+        internalPattern: ["@acme/", "#/", "@/*"],
+        newlinesBetween: true,
+    },
 });

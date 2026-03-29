@@ -1,7 +1,8 @@
-import { TopNavBar } from "#/views/top-nav-bar/index.tsx";
-import { SideNavBar } from "#/views/side-nav-bar/index.tsx";
-import { BaseLayout } from "./base";
 import { BottomNavBar } from "#/views/bottom-nav-bar/index.tsx";
+import { SideNavBar } from "#/views/side-nav-bar/index.tsx";
+import { TopNavBar } from "#/views/top-nav-bar/index.tsx";
+
+import { BaseLayout } from "./base";
 
 export function ShellLayout({ children }: { children: React.ReactNode }) {
     return (

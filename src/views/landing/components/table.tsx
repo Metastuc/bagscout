@@ -1,9 +1,11 @@
-import { cn } from "#/lib/utils.ts";
 import { flexRender, getCoreRowModel, useReactTable, type ColumnDef } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useRef } from "react";
-import { computeTokenAge, formatPriceToUSD, formatTokenNumber } from "../utils";
+
+import { cn } from "#/lib/utils.ts";
+
 import { GRID_COLUMNS } from "../constants";
+import { computeTokenAge, formatPriceToUSD, formatTokenNumber } from "../utils";
 
 interface DataTableProps {
     tokens: Array<MergedBagsTokenWithPool>;
@@ -158,13 +160,11 @@ const tableColumns: Array<ColumnDef<MergedBagsTokenWithPool>> = [
 ];
 
 function shouldAlignRight(columnId: string): boolean {
-    const noTextAlignment = ["token", "rank"];
-    return !noTextAlignment.includes(columnId);
+    return !["token", "rank"].includes(columnId);
 }
 
 export function DataTable({ tokens }: DataTableProps) {
     const parentRef = useRef<HTMLDivElement>(null);
-    const noTextAlignment = ["token", "rank"];
 
     const table = useReactTable({
         data: tokens,

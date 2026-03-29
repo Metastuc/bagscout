@@ -1,3 +1,3 @@
 export function BottomNavBar() {
-    return <section className="border border-red-500 fixed bottom-0 w-full sm:hidden">bottom nav here</section>;
+    return <section className="fixed bottom-0 w-full border border-red-500 sm:hidden">bottom nav here</section>;
 }

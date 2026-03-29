@@ -15,4 +15,12 @@ export default defineConfig({
         internalPattern: ["@acme/", "#/", "@/*"],
         newlinesBetween: true,
     },
+
+    sortPackageJson: true,
+
+    sortTailwindcss: {
+        preserveWhitespace: true,
+        tailwindStylesheet: "./src/index.css",
+        tailwindFunctions: ["clsx", "cva", "twMerge"],
+    },
 });

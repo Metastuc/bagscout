@@ -29,12 +29,12 @@ const tableColumns: Array<ColumnDef<MergedBagsTokenWithPool>> = [
         cell({ row }) {
             return (
                 <div className="flex items-center gap-2 border">
-                    <img src={row.original.image} className="w-6 h-6 rounded-full" />
+                    <img src={row.original.image} className="h-6 w-6 rounded-full" />
                     <div>
                         <div className="font-medium">{row.original.symbol}</div>
                         <div className="text-xs text-gray-400">{row.original.name}</div>
                     </div>
-                    <span className="text-[10px] px-1 rounded bg-gray-700">{row.original.status}</span>
+                    <span className="rounded bg-gray-700 px-1 text-[10px]">{row.original.status}</span>
                 </div>
             );
         },
@@ -205,7 +205,7 @@ export const DataTable = memo(function ({ tokens }: DataTableProps) {
 
                             return (
                                 <div
-                                    className="grid border-y min-w-full"
+                                    className="grid min-w-full border-y"
                                     key={row.id}
                                     style={{
                                         gridTemplateColumns: GRID_COLUMNS,

@@ -4,10 +4,6 @@ import { DataTable } from "#/views/landing/components/table.tsx";
 import { processTokenData } from "#/views/landing/utils.ts";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { getCoreRowModel, useReactTable, type ColumnDef } from "@tanstack/react-table";
-import { useVirtualizer } from "@tanstack/react-virtual";
-import { useRef } from "react";
-import { useShallow } from "zustand/shallow";
 
 export const Route = createFileRoute("/")({
     component: RouteComponent,
@@ -16,20 +12,9 @@ export const Route = createFileRoute("/")({
     },
 });
 
-
 function RouteComponent() {
     const { data } = useSuspenseQuery(getAllTokensQueryOptions());
-    const { activeTab, filters, setActiveTab, tablePageIndex, tablePageSize } = useClientViewState(
-        useShallow((state) => ({
-            activeTab: state.activeTab,
-            filters: state.filters,
-            tablePageIndex: state.tablePageIndex,
-            tablePageSize: state.tablePageSize,
-            setActiveTab: state.setActiveTab,
-        })),
-    );
-
-
+    const activeTab = useClientViewState((state) => state.activeTab);
 
     return <DataTable tokens={processTokenData(data.tokens, activeTab)} />;
 }

@@ -46,3 +46,30 @@ export function processTokenData(tokens: Array<MergedBagsTokenWithPool>, activeT
             }
         });
 }
+
+export function formatPriceToUSD(price: number): string {
+    if (price >= 1) return `$${price.toFixed(4)}`;
+    if (price >= 0.001) return `$${price.toFixed(6)}`;
+    if (price >= 0.000001) return `$${price.toFixed(8)}`;
+    return `$${price.toExponential(2)}`;
+}
+
+export function formatTokenNumber(number: number): string {
+    if (number >= 1e9) return `$${(number / 1e9).toFixed(2)}B`;
+    if (number >= 1e6) return `$${(number / 1e6).toFixed(2)}M`;
+    if (number >= 1e3) return `$${(number / 1e3).toFixed(2)}K`;
+    return `$${number.toFixed(2)}`;
+}
+
+export function computeTokenAge(iso: string): string {
+    const difference = Date.now() - new Date(iso).getTime();
+
+    const minutes = Math.floor(difference / (1000 * 60));
+    if (minutes < 60) return `${minutes}m`;
+
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h`;
+
+    const days = Math.floor(hours / 24);
+    return `${days}d`;
+}

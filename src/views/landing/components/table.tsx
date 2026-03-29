@@ -2,12 +2,25 @@ import { cn } from "#/lib/utils.ts";
 import { flexRender, getCoreRowModel, useReactTable, type ColumnDef } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useRef } from "react";
+import { computeTokenAge, formatPriceToUSD, formatTokenNumber } from "../utils";
 
 interface DataTableProps {
     tokens: Array<MergedBagsTokenWithPool>;
 }
 
 const tableColumns: Array<ColumnDef<MergedBagsTokenWithPool>> = [
+    {
+        cell({ row }) {
+            return row.index + 1;
+        },
+
+        enableSorting: false,
+
+        header: "#",
+
+        id: "rank",
+    },
+
     {
         cell({ row }) {
             return (
@@ -22,6 +35,8 @@ const tableColumns: Array<ColumnDef<MergedBagsTokenWithPool>> = [
             );
         },
 
+        enableSorting: false,
+
         header: "Token",
 
         id: "token",
@@ -29,15 +44,14 @@ const tableColumns: Array<ColumnDef<MergedBagsTokenWithPool>> = [
 
     {
         cell({ row }) {
-            return parseFloat(row.original.geckoData?.attributes.base_token_price_usd || "0").toLocaleString("en-US", {
-                style: "currency",
-                currency: "USD",
-            });
+            return formatPriceToUSD(parseFloat(row.original.geckoData?.attributes.base_token_price_usd ?? "0"));
         },
 
         header: "Price",
 
         id: "price",
+
+        sortingFn: "basic",
     },
 
     {
@@ -46,20 +60,11 @@ const tableColumns: Array<ColumnDef<MergedBagsTokenWithPool>> = [
             return <span className={cn(value >= 0 ? "text-green-500" : "text-red-500")}>{value}</span>;
         },
 
-        header: "5m",
+        header: "5m %",
 
         id: "m5",
-    },
 
-    {
-        cell({ row }) {
-            const value = parseFloat(row.original.geckoData?.attributes.price_change_percentage.h1 ?? "0");
-            return <span className={cn(value >= 0 ? "text-green-500" : "text-red-500")}>{value}</span>;
-        },
-
-        header: "1h",
-
-        id: "h1",
+        sortingFn: "basic",
     },
 
     {
@@ -68,7 +73,7 @@ const tableColumns: Array<ColumnDef<MergedBagsTokenWithPool>> = [
             return <span className={cn(value >= 0 ? "text-green-500" : "text-red-500")}>{value}</span>;
         },
 
-        header: "24h",
+        header: "24h %",
 
         id: "h24",
     },
@@ -81,7 +86,7 @@ const tableColumns: Array<ColumnDef<MergedBagsTokenWithPool>> = [
             });
         },
 
-        header: "Volume",
+        header: "Volume 24h",
 
         id: "volume",
     },
@@ -100,37 +105,54 @@ const tableColumns: Array<ColumnDef<MergedBagsTokenWithPool>> = [
 
     {
         cell({ row }) {
-            const [mCap, fdv] = [
-                parseFloat(row.original.geckoData?.attributes.market_cap_usd ?? "0"),
-                parseFloat(row.original.geckoData?.attributes.fdv_usd ?? "0"),
-            ];
-
-            return mCap || fdv;
+            return formatTokenNumber(
+                parseFloat(row.original.geckoData?.attributes.market_cap_usd ?? "0") || parseFloat(row.original.geckoData?.attributes.fdv_usd ?? "0"),
+            );
         },
 
         header: "MCap",
 
         id: "mCap",
+
+        sortingFn: "basic",
     },
 
     {
         cell({ row }) {
-            return (row.original.geckoData?.attributes.transactions.h24.buys ?? 0) + (row.original.geckoData?.attributes.transactions.h24.sells ?? 0);
+            return (
+                (row.original.geckoData?.attributes.transactions.h24.buys ?? 0) + (row.original.geckoData?.attributes.transactions.h24.sells ?? 0)
+            ).toLocaleString();
         },
 
         header: "Txns",
 
         id: "txns",
+
+        sortingFn: "basic",
     },
 
     {
         cell({ row }) {
-            return row.original.geckoData?.attributes.pool_created_at;
+            return computeTokenAge(row.original.geckoData?.attributes.pool_created_at ?? "");
         },
 
         header: "Age",
 
         id: "age",
+
+        sortingFn: "basic",
+    },
+
+    {
+        cell({ row }) {
+            return <>action</>;
+        },
+
+        enableSorting: false,
+
+        header: "Actions",
+
+        id: "actions",
     },
 ];
 

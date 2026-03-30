@@ -18,7 +18,13 @@ export const bagsTokenQueue = new Queue("bags-tokens-refresh", {
 
 new Worker(
     "bags-tokens-refresh",
-    async function () {
+    async function (job) {
+        console.log("BAGS JOB START", {
+            jobId: job.id,
+            repeatJobKey: job.repeatJobKey,
+            ts: Date.now(),
+        });
+
         const [tokens, pools] = await Promise.all([
             withDependencies((deps) => getTokensFromBags(deps)),
             withDependencies((deps) => getPoolsFromBags(deps)),
@@ -39,7 +45,7 @@ new Worker(
 
         for (const token of merged) {
             if (!token.poolAddress) continue;
-            await geckoDataQueue.add("refresh-gecko-data", { poolAddress: token.poolAddress }, { jobId: token.poolAddress });
+            await geckoDataQueue.add("refresh-gecko-data", { poolAddress: token.poolAddress });
         }
 
         return { count: merged.length };

@@ -6,6 +6,8 @@ import { toTime } from "./time";
 const CACHE_FILE = path.resolve("./.cache/tokens.json");
 const CACHE_TTL = toTime({ unit: "days", value: 7, output: "milliseconds" }) as number; // 7 days in milliseconds
 
+let queue = Promise.resolve(); // Initialize an empty promise to create a queue
+
 interface CacheData {
     lastFetched: number;
     tokens: Array<MergedBagsTokenWithPool>;
@@ -29,10 +31,14 @@ function writeCache(tokens: Array<MergedBagsTokenWithPool>) {
 }
 
 export function updateTokenCache(poolAddress: string, geckoData: MergedBagsTokenWithPool["geckoData"]) {
-    const cache = readCache();
-    if (!cache) return; // No cache to update
+    queue = queue.then(() => {
+        const cache = readCache();
+        if (!cache) return; // No cache to update
 
-    writeCache(cache.tokens.map((token) => (token.poolAddress === poolAddress ? { ...token, geckoData } : token)));
+        writeCache(cache.tokens.map((token) => (token.poolAddress === poolAddress ? { ...token, geckoData } : token)));
+    });
+
+    return queue; // Return the promise to allow callers to wait for the update to complete
 }
 
 // Check if cache is still valid

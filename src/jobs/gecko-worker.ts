@@ -17,6 +17,12 @@ export const geckoDataQueue = new Queue("gecko-data-refresh", {
 new Worker(
     "gecko-data-refresh",
     async function (job) {
+        console.log("GECKO JOB START", {
+            jobId: job.id,
+            repeatJobKey: job.repeatJobKey,
+            ts: Date.now(),
+        });
+
         const { poolAddress } = job.data;
 
         try {
@@ -26,7 +32,7 @@ new Worker(
                 if (!cachedToken?.geckoData?.fetchedAt) return false;
 
                 const dataAge = Date.now() - cachedToken.geckoData.fetchedAt;
-                return dataAge < (toTime({ unit: "hours", value: 1 }) as number); // Only fetch if data is older than 1 hour
+                return dataAge < (toTime({ unit: "hours", value: 1, output: "milliseconds" }) as number); // Only fetch if data is older than 1 hour
             });
 
             if (isDataFresh) return null;
@@ -48,5 +54,5 @@ new Worker(
             return null;
         }
     },
-    { connection: redis, limiter: { max: 25, duration: toTime({ unit: "seconds", value: 60 }) as number } },
+    { connection: redis, limiter: { max: 4, duration: toTime({ unit: "minutes", value: 1, output: "milliseconds" }) as number } },
 );

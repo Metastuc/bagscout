@@ -8,6 +8,7 @@ export const SERVER_ENV = z
         DB_NAME: z.string(),
         DB_FILE: z.string(),
         BAGS_API_KEY: z.string(),
+        REDIS_URL: z.string(),
     })
     .parse(process.env);
 

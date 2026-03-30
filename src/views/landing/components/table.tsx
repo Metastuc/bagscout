@@ -6,7 +6,7 @@ import { memo, useRef } from "react";
 import { cn } from "#/lib/utils.ts";
 
 import { GRID_COLUMNS } from "../constants";
-import { computeTokenAge, formatPriceToUSD, formatTokenNumber } from "../utils";
+import { computeTokenAge, formatPercentage, formatPriceToUSD, formatTokenNumber } from "../utils";
 
 interface DataTableProps {
     tokens: Array<MergedBagsTokenWithPool>;
@@ -61,7 +61,7 @@ const tableColumns: Array<ColumnDef<MergedBagsTokenWithPool>> = [
     {
         cell({ row }) {
             const value = parseFloat(row.original.geckoData?.attributes.price_change_percentage.m5 ?? "0");
-            return <span className={cn(value >= 0 ? "text-green-500" : "text-red-500")}>{value}</span>;
+            return <span className={cn(value >= 0 ? "text-green-500" : "text-red-500")}>{formatPercentage(value)}</span>;
         },
 
         header: "5m %",
@@ -74,7 +74,7 @@ const tableColumns: Array<ColumnDef<MergedBagsTokenWithPool>> = [
     {
         cell({ row }) {
             const value = parseFloat(row.original.geckoData?.attributes.price_change_percentage.h24 ?? "0");
-            return <span className={cn(value >= 0 ? "text-green-500" : "text-red-500")}>{value}</span>;
+            return <span className={cn(value >= 0 ? "text-green-500" : "text-red-500")}>{formatPercentage(value)}</span>;
         },
 
         header: "24h %",

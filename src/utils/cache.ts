@@ -1,12 +1,14 @@
 import fs from "fs";
 import path from "path";
 
+import { toTime } from "./time";
+
 const CACHE_FILE = path.resolve("./.cache/tokens.json");
-const CACHE_TTL = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
+const CACHE_TTL = toTime({ unit: "days", value: 7, output: "milliseconds" }) as number; // 7 days in milliseconds
 
 interface CacheData {
     lastFetched: number;
-    tokens: any[];
+    tokens: Array<MergedBagsTokenWithPool>;
 }
 
 // Read cache from disk
@@ -21,10 +23,16 @@ function readCache(): CacheData | null {
 }
 
 // Write cache to disk
-function writeCache(tokens: any[]) {
-    const data: CacheData = { lastFetched: Date.now(), tokens };
+function writeCache(tokens: Array<MergedBagsTokenWithPool>) {
     fs.mkdirSync(path.dirname(CACHE_FILE), { recursive: true });
-    fs.writeFileSync(CACHE_FILE, JSON.stringify(data, null, 2));
+    fs.writeFileSync(CACHE_FILE, JSON.stringify({ lastFetched: Date.now(), tokens }, null, 2));
+}
+
+export function updateTokenCache(poolAddress: string, geckoData: MergedBagsTokenWithPool["geckoData"]) {
+    const cache = readCache();
+    if (!cache) return; // No cache to update
+
+    writeCache(cache.tokens.map((token) => (token.poolAddress === poolAddress ? { ...token, geckoData } : token)));
 }
 
 // Check if cache is still valid
@@ -34,7 +42,8 @@ function isCacheValid(cache: CacheData | null) {
 }
 
 export const cacheUtils = {
-    readCache,
-    writeCache,
     isCacheValid,
+    readCache,
+    updateTokenCache,
+    writeCache,
 };

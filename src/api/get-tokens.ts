@@ -24,7 +24,7 @@ const getTokensServerFn = createServerFn({ method: "GET" }).handler(
                         if (!token.poolAddress) return token;
                         try {
                             const geckoData = await getGeckoPool(token.poolAddress, deps);
-                            return { ...token, geckoData: geckoData ?? undefined };
+                            return { ...token, geckoData: geckoData ? { data: geckoData, fetchedAt: Date.now() } : undefined };
                         } catch (error) {
                             deps.logger.error({ msg: (error as Error).message, data: { stack: (error as Error).stack } });
                             return { ...token, geckoData: undefined };

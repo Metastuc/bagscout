@@ -2,7 +2,10 @@ import { mergeBagsTokenWithPool } from "../utils/merge-bags-pool";
 
 declare global {
     interface MergedBagsTokenWithPool extends BagsTokenWithPool {
-        geckoData?: GeckoPoolData;
+        geckoData?: {
+            data: GeckoPoolData;
+            fetchedAt: number;
+        };
     }
 
     interface BagsTokenWithPool extends BagsTokenInfo {

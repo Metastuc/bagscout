@@ -48,7 +48,7 @@ const tableColumns: Array<ColumnDef<MergedBagsTokenWithPool>> = [
 
     {
         cell({ row }) {
-            return formatPriceToUSD(parseFloat(row.original.geckoData?.attributes.base_token_price_usd ?? "0"));
+            return formatPriceToUSD(parseFloat(row.original.geckoData?.data?.attributes.base_token_price_usd ?? "0"));
         },
 
         header: "Price",
@@ -60,7 +60,7 @@ const tableColumns: Array<ColumnDef<MergedBagsTokenWithPool>> = [
 
     {
         cell({ row }) {
-            const value = parseFloat(row.original.geckoData?.attributes.price_change_percentage.m5 ?? "0");
+            const value = parseFloat(row.original.geckoData?.data?.attributes.price_change_percentage.m5 ?? "0");
             return <span className={cn(value >= 0 ? "text-green-500" : "text-red-500")}>{formatPercentage(value)}</span>;
         },
 
@@ -73,7 +73,7 @@ const tableColumns: Array<ColumnDef<MergedBagsTokenWithPool>> = [
 
     {
         cell({ row }) {
-            const value = parseFloat(row.original.geckoData?.attributes.price_change_percentage.h24 ?? "0");
+            const value = parseFloat(row.original.geckoData?.data?.attributes.price_change_percentage.h24 ?? "0");
             return <span className={cn(value >= 0 ? "text-green-500" : "text-red-500")}>{formatPercentage(value)}</span>;
         },
 
@@ -84,7 +84,7 @@ const tableColumns: Array<ColumnDef<MergedBagsTokenWithPool>> = [
 
     {
         cell({ row }) {
-            return parseFloat(row.original.geckoData?.attributes.volume_usd.h24 ?? "0").toLocaleString("en-US", {
+            return parseFloat(row.original.geckoData?.data?.attributes.volume_usd.h24 ?? "0").toLocaleString("en-US", {
                 style: "currency",
                 currency: "USD",
             });
@@ -96,7 +96,7 @@ const tableColumns: Array<ColumnDef<MergedBagsTokenWithPool>> = [
     },
     {
         cell({ row }) {
-            return parseFloat(row.original.geckoData?.attributes.reserve_in_usd ?? "0").toLocaleString("en-US", {
+            return parseFloat(row.original.geckoData?.data?.attributes.reserve_in_usd ?? "0").toLocaleString("en-US", {
                 style: "currency",
                 currency: "USD",
             });
@@ -110,7 +110,8 @@ const tableColumns: Array<ColumnDef<MergedBagsTokenWithPool>> = [
     {
         cell({ row }) {
             return formatTokenNumber(
-                parseFloat(row.original.geckoData?.attributes.market_cap_usd ?? "0") || parseFloat(row.original.geckoData?.attributes.fdv_usd ?? "0"),
+                parseFloat(row.original.geckoData?.data?.attributes.market_cap_usd ?? "0") ||
+                    parseFloat(row.original.geckoData?.data?.attributes.fdv_usd ?? "0"),
             );
         },
 
@@ -124,7 +125,8 @@ const tableColumns: Array<ColumnDef<MergedBagsTokenWithPool>> = [
     {
         cell({ row }) {
             return (
-                (row.original.geckoData?.attributes.transactions.h24.buys ?? 0) + (row.original.geckoData?.attributes.transactions.h24.sells ?? 0)
+                (row.original.geckoData?.data?.attributes.transactions.h24.buys ?? 0) +
+                (row.original.geckoData?.data?.attributes.transactions.h24.sells ?? 0)
             ).toLocaleString();
         },
 
@@ -137,7 +139,7 @@ const tableColumns: Array<ColumnDef<MergedBagsTokenWithPool>> = [
 
     {
         cell({ row }) {
-            return computeTokenAge(row.original.geckoData?.attributes.pool_created_at ?? "");
+            return computeTokenAge(row.original.geckoData?.data?.attributes.pool_created_at ?? "");
         },
 
         header: "Age",

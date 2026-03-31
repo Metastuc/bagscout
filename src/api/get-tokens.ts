@@ -10,27 +10,6 @@ const getTokensServerFn = createServerFn({ method: "GET" }).handler(
         await withDependencies(async (deps) => {
             try {
                 const cache = deps.cache.readCache();
-                // if (deps.cache.isCacheValid(cache)) {
-                //     deps.logger.info({ msg: "Cache hit", data: { lastFetched: cache?.lastFetched } });
-                //     return { tokens: (cache?.tokens as Array<MergedBagsTokenWithPool>) ?? [] };
-                // }
-                // const [allBagsTokens, allBagsPools] = await Promise.all([getTokensFromBags(deps), getPoolsFromBags(deps)]);
-                // const merged = mergeBagsTokenWithPool(allBagsTokens ?? [], allBagsPools ?? []);
-
-                // const allTokens: Array<MergedBagsTokenWithPool> = await Promise.all(
-                //     merged.map(async (token) => {
-                //         if (!token.poolAddress) return token;
-                //         try {
-                //             const geckoData = await getGeckoPool(token.poolAddress, deps);
-                //             return { ...token, geckoData: geckoData ? { data: geckoData, fetchedAt: Date.now() } : undefined };
-                //         } catch (error) {
-                //             deps.logger.error({ msg: (error as Error).message, data: { stack: (error as Error).stack } });
-                //             return { ...token, geckoData: undefined };
-                //         }
-                //     }),
-                // );
-
-                // deps.cache.writeCache(allTokens);
 
                 if (!cache) {
                     deps.logger.warn({ msg: "Cache miss - worker not ready yet" });
@@ -51,4 +30,5 @@ export const getAllTokensQueryOptions = () =>
         queryKey: ["all_tokens"],
         queryFn: () => getTokensServerFn(),
         refetchInterval: toTime({ unit: "seconds", value: 30, output: "milliseconds" }) as number,
+        refetchIntervalInBackground: true,
     });

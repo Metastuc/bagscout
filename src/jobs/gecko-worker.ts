@@ -54,5 +54,5 @@ new Worker(
             return null;
         }
     },
-    { connection: redis, limiter: { max: 4, duration: toTime({ unit: "minutes", value: 1, output: "milliseconds" }) as number } },
+    { connection: redis, limiter: { max: 1, duration: toTime({ unit: "seconds", value: 15, output: "milliseconds" }) as number } },
 );

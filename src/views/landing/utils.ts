@@ -12,7 +12,8 @@ export function computeTokenAge(iso: string): string {
 }
 
 export function displaySafeValue(number: number | null, formatter: (num: number) => string): string {
-    return number === null ? "—" : formatter(number);
+    if (number == null || Number.isNaN(number)) return "—";
+    return formatter(number);
 }
 
 export function formatPercentage(number: number): string {
@@ -32,6 +33,10 @@ export function formatTokenNumber(number: number): string {
     if (number >= 1e6) return `$${(number / 1e6).toFixed(2)}M`;
     if (number >= 1e3) return `$${(number / 1e3).toFixed(2)}K`;
     return `$${number.toFixed(2)}`;
+}
+
+export function hasVolumeSplit(attributes: GeckoPoolAttributes): boolean {
+    return !!attributes.buy_volume_usd && !!attributes.sell_volume_usd;
 }
 
 export function processTokenData(tokens: Array<MergedBagsTokenWithPool>, activeTab: NavigationTab) {
@@ -83,8 +88,12 @@ export function processTokenData(tokens: Array<MergedBagsTokenWithPool>, activeT
         });
 }
 
-export function safeNumber(value: string | undefined): number | null {
-    if (value === undefined || value === null) return 0;
+export function safeNumber(value: string | null | undefined): number | null {
+    if (value === undefined || value === null) return null;
     const number = parseFloat(value);
     return Number.isNaN(number) ? null : number;
+}
+
+export function shouldAlignRight(columnId: string): boolean {
+    return !["token", "rank"].includes(columnId);
 }

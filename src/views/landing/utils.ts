@@ -1,3 +1,19 @@
+export function computeDataMode(attributes?: GeckoPoolAttributes | null): GeckoDataMode {
+    if (!attributes) return "NONE";
+
+    if (hasVolumeSplit(attributes)) return "FULL";
+
+    const [hasVolume, hasTransactions] = [
+        Number(attributes.volume_usd?.h24 ?? 0) > 0,
+        Number(attributes.transactions.h24.buys ?? 0) + Number(attributes.transactions.h24.sells ?? 0) > 0,
+    ];
+
+    if (hasVolume || hasTransactions) return "PARTIAL";
+    if (hasTransactions) return "VOLUME_ONLY";
+
+    return "NONE";
+}
+
 export function computeTokenAge(iso: string): string {
     const difference = Date.now() - new Date(iso).getTime();
 
@@ -11,7 +27,7 @@ export function computeTokenAge(iso: string): string {
     return `${days}d`;
 }
 
-export function displaySafeValue(number: number | null, formatter: (num: number) => string): string {
+export function displaySafeValue(number: number | null, formatter: (_: number) => string): string {
     if (number == null || Number.isNaN(number)) return "—";
     return formatter(number);
 }
@@ -28,11 +44,11 @@ export function formatPriceToUSD(price: number): string {
     return `$${price.toExponential(2)}`;
 }
 
-export function formatTokenNumber(number: number): string {
-    if (number >= 1e9) return `$${(number / 1e9).toFixed(2)}B`;
-    if (number >= 1e6) return `$${(number / 1e6).toFixed(2)}M`;
-    if (number >= 1e3) return `$${(number / 1e3).toFixed(2)}K`;
-    return `$${number.toFixed(2)}`;
+export function formatTokenPrice(price: number): string {
+    if (price >= 1e9) return `$${(price / 1e9).toFixed(2)}B`;
+    if (price >= 1e6) return `$${(price / 1e6).toFixed(2)}M`;
+    if (price >= 1e3) return `$${(price / 1e3).toFixed(2)}K`;
+    return `$${price.toFixed(2)}`;
 }
 
 export function hasVolumeSplit(attributes: GeckoPoolAttributes): boolean {

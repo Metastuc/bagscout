@@ -2,7 +2,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 
 import { cn } from "#/lib/utils.ts";
 
-import { computeTokenAge, formatPercentage, formatPriceToUSD, formatTokenNumber } from "../utils";
+import { computeTokenAge, formatPercentage, formatPriceToUSD, formatTokenPrice } from "../utils";
 
 export const TABLE_COLUMNS: Array<ColumnDef<MergedBagsTokenWithPool>> = [
     {
@@ -101,7 +101,7 @@ export const TABLE_COLUMNS: Array<ColumnDef<MergedBagsTokenWithPool>> = [
 
     {
         cell({ row }) {
-            return formatTokenNumber(
+            return formatTokenPrice(
                 parseFloat(row.original.geckoData?.data?.attributes.market_cap_usd ?? "0") ||
                     parseFloat(row.original.geckoData?.data?.attributes.fdv_usd ?? "0"),
             );

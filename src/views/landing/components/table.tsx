@@ -4,6 +4,7 @@ import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-tabl
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { memo, useEffect, useRef } from "react";
 
+import { useClientViewState } from "#/lib/store.ts";
 import { cn } from "#/lib/utils.ts";
 
 import { GRID_COLUMNS } from "../constants";
@@ -22,6 +23,8 @@ export const DataTable = memo(function ({ fetchNextPage, tokens, hasNextPage, is
     const navigate = useNavigate({ from: "/" });
     const isFetching = useRef<boolean>(false);
 
+    const activeTab = useClientViewState((state) => state.activeTab);
+
     const table = useReactTable({
         data: tokens,
         columns: TABLE_COLUMNS,
@@ -32,6 +35,7 @@ export const DataTable = memo(function ({ fetchNextPage, tokens, hasNextPage, is
         count: table.getRowModel().rows.length,
         getScrollElement: () => parentRef.current,
         estimateSize: () => 75,
+        overscan: 15,
     });
 
     const virtualItems = rowVirtualizer.getVirtualItems();
@@ -50,6 +54,11 @@ export const DataTable = memo(function ({ fetchNextPage, tokens, hasNextPage, is
         },
         [virtualItems.length, tokens.length, hasNextPage, isFetchingNextPage],
     );
+
+    useEffect(() => {
+        rowVirtualizer.scrollToIndex(0);
+        parentRef.current?.scrollTo({ behavior: "smooth", left: 0, top: 0 });
+    }, [activeTab]);
 
     return (
         <section className="size-full overflow-hidden">
@@ -84,7 +93,7 @@ export const DataTable = memo(function ({ fetchNextPage, tokens, hasNextPage, is
                                         left: 0,
                                         position: "absolute",
                                         top: 0,
-                                        transform: `translateY(${virtualRow.start}px)`,
+                                        transform: `translate3d(0, ${virtualRow.start}px, 0)`,
                                     }}
                                     onClick={() => {
                                         navigate({
@@ -93,7 +102,11 @@ export const DataTable = memo(function ({ fetchNextPage, tokens, hasNextPage, is
                                     }}
                                 >
                                     {row.getVisibleCells().map((cell) => (
-                                        <div key={cell.id} className={cn("py-2 px-3", shouldAlignRight(cell.id) ? "text-right" : "text-left")}>
+                                        <div
+                                            key={cell.id}
+                                            className={cn("py-2 px-3", shouldAlignRight(cell.id) ? "text-right" : "text-left")}
+                                            style={{ willChange: "transform" }}
+                                        >
                                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                         </div>
                                     ))}

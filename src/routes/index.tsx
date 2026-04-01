@@ -79,13 +79,7 @@ function RouteComponent() {
         <Fragment>
             <section className="lg:hidden">mobile nav</section>
 
-            <DataTable
-                fetchNextPage={fetchNextPage}
-                hasNextPage={hasNextPage}
-                isFetchingNextPage={isFetchingNextPage}
-                // key={activeTab}
-                tokens={allTokens}
-            />
+            <DataTable fetchNextPage={fetchNextPage} hasNextPage={hasNextPage} isFetchingNextPage={isFetchingNextPage} tokens={allTokens} />
 
             <Suspense fallback={undefined}>
                 {selectedToken ? (

@@ -10,13 +10,14 @@ const getTickersServerFn = createServerFn({ method: "GET" }).handler(async () =>
         const cache = deps.cache.readCache();
         if (!cache) return { tokens: [] };
 
-        const topTokens = [...cache.tokens]
-            .sort(
-                (a, b) => (Number(b.geckoData?.data?.attributes.volume_usd?.h24) || 0) - (Number(a.geckoData?.data?.attributes.volume_usd?.h24) || 0),
-            )
-            .slice(0, 20);
-
-        return { tokens: topTokens };
+        return {
+            tokens: [...cache.tokens]
+                .sort(
+                    (a, b) =>
+                        (Number(b.geckoData?.data?.attributes.volume_usd?.h24) || 0) - (Number(a.geckoData?.data?.attributes.volume_usd?.h24) || 0),
+                )
+                .slice(0, 20),
+        };
     });
 });
 

@@ -1,7 +1,8 @@
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { memo, useRef } from "react";
+import { memo, useEffect, useRef } from "react";
 
 import { cn } from "#/lib/utils.ts";
 
@@ -10,12 +11,16 @@ import { shouldAlignRight } from "../utils";
 import { TABLE_COLUMNS } from "./columns";
 
 interface DataTableProps {
+    fetchNextPage: ReturnType<typeof useInfiniteQuery>["fetchNextPage"];
+    hasNextPage: boolean;
+    isFetchingNextPage: boolean;
     tokens: Array<MergedBagsTokenWithPool>;
 }
 
-export const DataTable = memo(function ({ tokens }: DataTableProps) {
+export const DataTable = memo(function ({ fetchNextPage, tokens, hasNextPage, isFetchingNextPage }: DataTableProps) {
     const parentRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate({ from: "/" });
+    const isFetching = useRef<boolean>(false);
 
     const table = useReactTable({
         data: tokens,
@@ -29,9 +34,26 @@ export const DataTable = memo(function ({ tokens }: DataTableProps) {
         estimateSize: () => 75,
     });
 
+    const virtualItems = rowVirtualizer.getVirtualItems();
+    const LOAD_MORE_THRESHOLD = 5;
+
+    useEffect(
+        function () {
+            const lastItem = virtualItems.at(-1);
+            if (!lastItem) return;
+            if (lastItem.index >= tokens.length - LOAD_MORE_THRESHOLD && hasNextPage && !isFetchingNextPage && !isFetching.current) {
+                isFetching.current = true;
+                fetchNextPage().finally(() => {
+                    isFetching.current = false;
+                });
+            }
+        },
+        [virtualItems.length, tokens.length, hasNextPage, isFetchingNextPage],
+    );
+
     return (
         <section className="size-full overflow-hidden">
-            <div className="size-full overflow-auto">
+            <div className="size-full overflow-auto" ref={parentRef}>
                 <aside
                     className="bg-background/50 sticky top-0 z-10 grid w-max min-w-full border-b backdrop-blur-xs"
                     style={{
@@ -47,7 +69,7 @@ export const DataTable = memo(function ({ tokens }: DataTableProps) {
                     )}
                 </aside>
 
-                <aside ref={parentRef}>
+                <aside>
                     <div style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: "relative" }}>
                         {rowVirtualizer.getVirtualItems().map((virtualRow) => {
                             const row = table.getRowModel().rows[virtualRow.index];

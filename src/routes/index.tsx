@@ -1,12 +1,12 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, type InfiniteData } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Fragment, lazy, Suspense, useEffect, useMemo } from "react";
 import { useShallow } from "zustand/shallow";
 
-import { getAllTokensQueryOptions } from "#/api/get-tokens.ts";
+import { getTokensServerFn } from "#/api/get-tokens.ts";
 import { useClientViewState } from "#/lib/store.ts";
+import { toTime } from "#/utils/time.ts";
 import { DataTable } from "#/views/landing/components/table.tsx";
-import { processTokenData } from "#/views/landing/utils.ts";
 
 const TokenDetailsModal = lazy(() => import("#/views/landing/components/modal.tsx").then((module) => ({ default: module.TokenDetailsModal })));
 
@@ -18,7 +18,14 @@ export const Route = createFileRoute("/")({
     component: RouteComponent,
 
     async loader({ context }) {
-        await context.queryClient.ensureQueryData(getAllTokensQueryOptions());
+        await context.queryClient.prefetchInfiniteQuery({
+            queryKey: ["all_tokens", "trending"],
+            queryFn: ({ pageParam }) =>
+                getTokensServerFn({
+                    data: { limit: 20, tab: "trending", cursor: pageParam },
+                }),
+            initialPageParam: undefined,
+        });
     },
 
     validateSearch(search: Record<string, unknown>): RouteSearchParams {
@@ -29,8 +36,6 @@ export const Route = createFileRoute("/")({
 });
 
 function RouteComponent() {
-    const { data } = useSuspenseQuery(getAllTokensQueryOptions());
-
     const navigate = Route.useNavigate();
     const { token } = Route.useSearch();
 
@@ -38,29 +43,48 @@ function RouteComponent() {
         useShallow((state) => ({ activeTab: state.activeTab, setTickerTokens: state.setTickerTokens })),
     );
 
-    const selectedToken = token ? data?.tokens.find((t) => t.tokenMint === token) : undefined;
-    const processedTokensMemo = useMemo(() => processTokenData(data.tokens, activeTab), [data.tokens, activeTab]);
+    const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery<
+        TokensPage,
+        Error,
+        InfiniteData<TokensPage>,
+        [string, NavigationTab],
+        string | undefined
+    >({
+        queryKey: ["all_tokens", activeTab],
+        queryFn: ({ pageParam }) => getTokensServerFn({ data: { limit: 20, tab: activeTab, cursor: pageParam } }),
+        getNextPageParam: (lastPage) => lastPage.nextCursor,
+        initialPageParam: undefined,
+        placeholderData: (previous) => previous,
+        refetchInterval: toTime({ unit: "seconds", value: 30, output: "milliseconds" }) as number,
+        refetchIntervalInBackground: true,
+        staleTime: toTime({ unit: "seconds", value: 20, output: "milliseconds" }) as number,
+    });
+
+    const allTokens = useMemo(() => data?.pages.flatMap((page) => page.tokens) ?? [], [data]);
+    const selectedToken = token ? allTokens.find((t) => t.tokenMint === token) : undefined;
+    const tickerTokens = useMemo(
+        () =>
+            [...allTokens]
+                .sort(
+                    (a, b) =>
+                        (Number(b.geckoData?.data?.attributes.volume_usd?.h24) || 0) - (Number(a.geckoData?.data?.attributes.volume_usd?.h24) || 0),
+                )
+                .slice(0, 20),
+        [allTokens],
+    );
 
     useEffect(
         function () {
-            setTickerTokens(
-                data.tokens
-                    .sort(
-                        (a, b) =>
-                            (Number(b.geckoData?.data?.attributes.volume_usd?.h24) || 0) -
-                            (Number(a.geckoData?.data?.attributes.volume_usd?.h24) || 0),
-                    )
-                    .slice(0, 20),
-            );
+            setTickerTokens(tickerTokens);
         },
-        [data.tokens],
+        [tickerTokens],
     );
 
     return (
         <Fragment>
             <section className="lg:hidden">mobile nav</section>
 
-            <DataTable tokens={processedTokensMemo} />
+            <DataTable fetchNextPage={fetchNextPage} tokens={allTokens} hasNextPage={hasNextPage} isFetchingNextPage={isFetchingNextPage} />
 
             <Suspense fallback={undefined}>
                 {selectedToken ? (

@@ -1,121 +1,170 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
-import { useVirtualizer } from "@tanstack/react-virtual";
-import { memo, useEffect, useRef } from "react";
+import {
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+import { Fragment, memo, useEffect, useRef } from "react";
+import { useIntersectionObserver } from "usehooks-ts";
 
 import { useClientViewState } from "#/lib/store.ts";
 import { cn } from "#/lib/utils.ts";
 
-import { GRID_COLUMNS } from "../constants";
+import { GRID_COLUMNS, STICKY_OFFSET } from "../constants";
 import { shouldAlignRight } from "../utils";
 import { TABLE_COLUMNS } from "./columns";
 
 interface DataTableProps {
-    fetchNextPage: ReturnType<typeof useInfiniteQuery>["fetchNextPage"];
-    hasNextPage: boolean;
-    isFetchingNextPage: boolean;
-    tokens: Array<MergedBagsTokenWithPool>;
+  fetchNextPage: ReturnType<typeof useInfiniteQuery>["fetchNextPage"];
+  hasNextPage: boolean;
+  isFetchingNextPage: boolean;
+  tokens: Array<MergedBagsTokenWithPool>;
 }
 
-export const DataTable = memo(function ({ fetchNextPage, tokens, hasNextPage, isFetchingNextPage }: DataTableProps) {
-    const parentRef = useRef<HTMLDivElement>(null);
-    const navigate = useNavigate({ from: "/" });
-    const isFetching = useRef<boolean>(false);
+export const DataTable = memo(function ({
+  fetchNextPage,
+  tokens,
+  hasNextPage,
+  isFetchingNextPage,
+}: DataTableProps) {
+  const isFetching = useRef<boolean>(false);
+  const parentRef = useRef<HTMLDivElement>(null);
 
-    const activeTab = useClientViewState((state) => state.activeTab);
+  const navigate = useNavigate({ from: "/" });
+  const activeTab = useClientViewState((state) => state.activeTab);
 
-    const table = useReactTable({
-        data: tokens,
-        columns: TABLE_COLUMNS,
-        getCoreRowModel: getCoreRowModel(),
-    });
+  const table = useReactTable({
+    data: tokens,
+    columns: TABLE_COLUMNS,
+    getCoreRowModel: getCoreRowModel(),
+  });
 
-    const rowVirtualizer = useVirtualizer({
-        count: table.getRowModel().rows.length,
-        getScrollElement: () => parentRef.current,
-        estimateSize: () => 75,
-        overscan: 15,
-    });
+  const { isIntersecting, ref } = useIntersectionObserver({
+    threshold: 0.5,
+    rootMargin: "0px 0px 100px 0px",
+  });
 
-    const virtualItems = rowVirtualizer.getVirtualItems();
-    const LOAD_MORE_THRESHOLD = 5;
+  useEffect(() => {
+    if (!isIntersecting) return;
 
-    useEffect(
-        function () {
-            const lastItem = virtualItems.at(-1);
-            if (!lastItem) return;
-            if (lastItem.index >= tokens.length - LOAD_MORE_THRESHOLD && hasNextPage && !isFetchingNextPage && !isFetching.current) {
-                isFetching.current = true;
-                fetchNextPage().finally(() => {
-                    isFetching.current = false;
-                });
-            }
-        },
-        [virtualItems.length, tokens.length, hasNextPage, isFetchingNextPage],
-    );
+    if (hasNextPage && !isFetchingNextPage && !isFetching.current) {
+      isFetching.current = true;
 
-    useEffect(() => {
-        rowVirtualizer.scrollToIndex(0);
-        parentRef.current?.scrollTo({ behavior: "smooth", left: 0, top: 0 });
-    }, [activeTab]);
+      fetchNextPage().finally(() => {
+        isFetching.current = false;
+      });
+    }
+  }, [isIntersecting, hasNextPage, isFetchingNextPage]);
 
-    return (
-        <section className="size-full overflow-hidden">
-            <div className="size-full overflow-auto" ref={parentRef}>
-                <aside
-                    className="bg-background/50 sticky top-0 z-10 grid w-max min-w-full border-b backdrop-blur-xs"
-                    style={{
-                        gridTemplateColumns: GRID_COLUMNS,
-                    }}
+  useEffect(() => {
+    parentRef.current?.scrollTo({ behavior: "smooth", left: 0, top: 0 });
+  }, [activeTab]);
+
+  return (
+    <section className="size-full overflow-hidden">
+      <div ref={parentRef} className="size-full overflow-auto">
+        <aside
+          className="sticky top-0 z-20 grid w-max min-w-full border-b bg-black backdrop-blur-xs"
+          style={{ gridTemplateColumns: GRID_COLUMNS }}
+        >
+          {table.getHeaderGroups().map((headerGroup) =>
+            headerGroup.headers.map((header) => {
+              const isSticky =
+                header.column.id === "rank" || header.column.id === "token";
+
+              return (
+                <div
+                  key={header.id}
+                  className={cn(
+                    "px-3 py-2 text-sm font-medium uppercase",
+                    isSticky && "sticky bg-background z-30",
+                    shouldAlignRight(header.id) ? "text-right" : "text-left",
+                  )}
+                  style={{
+                    left: isSticky
+                      ? STICKY_OFFSET[
+                          header.column.id as keyof typeof STICKY_OFFSET
+                        ]
+                      : undefined,
+                  }}
                 >
-                    {table.getHeaderGroups().map((headerGroup) =>
-                        headerGroup.headers.map((header) => (
-                            <div key={header.id} className={cn("py-2 px-3", shouldAlignRight(header.id) ? "text-right" : "text-left")}>
-                                <span className="uppercase">{flexRender(header.column.columnDef.header, header.getContext())}</span>
-                            </div>
-                        )),
+                  {flexRender(
+                    header.column.columnDef.header,
+                    header.getContext(),
+                  )}
+                </div>
+              );
+            }),
+          )}
+        </aside>
+
+        <aside>
+          {table.getRowModel().rows.map((row) => (
+            <div
+              key={row.id}
+              className="hover:bg-muted/30 grid min-w-fit cursor-pointer border-b"
+              style={{ gridTemplateColumns: GRID_COLUMNS }}
+              onClick={() =>
+                navigate({
+                  search: (previous) => ({
+                    ...previous,
+                    token: row.original.tokenMint,
+                  }),
+                })
+              }
+            >
+              {row.getVisibleCells().map((cell) => {
+                const isSticky =
+                  cell.column.id === "rank" || cell.column.id === "token";
+
+                return (
+                  <div
+                    key={cell.id}
+                    className={cn(
+                      "px-3 py-2 flex items-center",
+                      shouldAlignRight(cell.column.id)
+                        ? "justify-end"
+                        : "justify-start",
+                      isSticky &&
+                        "sticky bg-background z-10 border-r border-border",
                     )}
-                </aside>
-
-                <aside>
-                    <div style={{ height: `${rowVirtualizer.getTotalSize()}px`, position: "relative" }}>
-                        {rowVirtualizer.getVirtualItems().map((virtualRow) => {
-                            const row = table.getRowModel().rows[virtualRow.index];
-
-                            return (
-                                <div
-                                    className="grid min-w-full overflow-hidden border-b"
-                                    key={row.id}
-                                    style={{
-                                        gridTemplateColumns: GRID_COLUMNS,
-                                        height: `${virtualRow.size}px`,
-                                        left: 0,
-                                        position: "absolute",
-                                        top: 0,
-                                        transform: `translate3d(0, ${virtualRow.start}px, 0)`,
-                                    }}
-                                    onClick={() => {
-                                        navigate({
-                                            search: (previous) => ({ ...previous, token: row.original.tokenMint }),
-                                        });
-                                    }}
-                                >
-                                    {row.getVisibleCells().map((cell) => (
-                                        <div
-                                            key={cell.id}
-                                            className={cn("py-2 px-3", shouldAlignRight(cell.id) ? "text-right" : "text-left")}
-                                            style={{ willChange: "transform" }}
-                                        >
-                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                        </div>
-                                    ))}
-                                </div>
-                            );
-                        })}
-                    </div>
-                </aside>
+                    style={{
+                      left: isSticky
+                        ? STICKY_OFFSET[
+                            cell.column.id as keyof typeof STICKY_OFFSET
+                          ]
+                        : undefined,
+                    }}
+                  >
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </div>
+                );
+              })}
             </div>
-        </section>
-    );
+          ))}
+        </aside>
+
+        <div
+          ref={ref}
+          className="flex flex-col items-center justify-center gap-2 py-6"
+        >
+          {hasNextPage ? (
+            <Fragment>
+              <div className="border-muted border-t-foreground h-5 w-5 animate-spin rounded-full border-2" />
+              <span className="text-muted-foreground text-sm">
+                Loading more tokens...
+              </span>
+            </Fragment>
+          ) : (
+            <div className="flex flex-col items-center gap-2 text-center">
+              <span className="text-muted-foreground text-sm">
+                You’ve reached the end 👀
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  );
 });

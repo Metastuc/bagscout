@@ -6,13 +6,13 @@ import { SlidingTokens } from "../sliding-tokens";
 import { BaseLayout } from "./base";
 
 export function ShellLayout({ children }: { children: React.ReactNode }) {
-    return (
-        <section className="relative h-dvh">
-            <TopNavBar />
-            <SlidingTokens />
-            <SideNavBar />
-            <BaseLayout>{children}</BaseLayout>
-            <BottomNavBar />
-        </section>
-    );
+  return (
+    <section className="relative h-dvh">
+      <TopNavBar />
+      <SlidingTokens />
+      <SideNavBar />
+      <BaseLayout>{children}</BaseLayout>
+      <BottomNavBar />
+    </section>
+  );
 }

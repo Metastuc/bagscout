@@ -3,7 +3,7 @@ export const GRID_COLUMNS = `
 minmax(12.5rem, 2fr)  
 8.75rem
 6.25rem
-6.25rem
+8.75rem
 8.75rem
 8.75rem
 6.25rem
@@ -11,3 +11,8 @@ minmax(12.5rem, 2fr)
 6.25rem
 7.5rem
 `;
+
+export const STICKY_OFFSET = {
+  rank: "0rem",
+  token: "3.75rem",
+};

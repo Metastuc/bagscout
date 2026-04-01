@@ -21,6 +21,6 @@ export default defineConfig({
   sortTailwindcss: {
     preserveWhitespace: true,
     tailwindStylesheet: "./src/index.css",
-    tailwindFunctions: ["clsx", "cva", "twMerge"],
+    tailwindFunctions: ["clsx", "cva", "twMerge", "cn"],
   },
 });

@@ -38,6 +38,19 @@ export const Route = createRootRouteWithContext<{
         rel: "icon",
         href: "/bagscout.logo.jpg",
       },
+      {
+        rel: "preconnect",
+        href: "https://fonts.googleapis.com",
+      },
+      {
+        rel: "preconnect",
+        href: "https://fonts.gstatic.com",
+        crossOrigin: "anonymous",
+      },
+      {
+        href: "https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&display=swap",
+        rel: "stylesheet",
+      },
     ],
   }),
   shellComponent: RootDocument,
@@ -50,7 +63,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         <HeadContent />
       </head>
-      <body className="font-sans wrap-anywhere antialiased selection:bg-[rgba(79,184,178,0.24)]">
+      <body className="font-mono wrap-anywhere antialiased selection:bg-[rgba(79,184,178,0.24)]">
         <ShellLayout>{children}</ShellLayout>
         <TanStackDevtools
           config={{

@@ -63,31 +63,27 @@ export const DataTable = memo(function ({
 
   return (
     <section className="size-full overflow-hidden">
-      <div ref={parentRef} className="size-full overflow-auto">
+      <div
+        ref={parentRef}
+        className="scrollbar scrollbar-thumb-muted-foreground/30 hover:scrollbar-thumb-muted-foreground/50 scrollbar-track-transparent size-full overflow-auto"
+      >
         <aside
-          className="sticky top-0 z-20 grid w-max min-w-full border-b bg-black backdrop-blur-xs"
+          className="sticky top-0 z-30 grid w-max min-w-full border-b bg-black/50 backdrop-blur-xs"
           style={{ gridTemplateColumns: GRID_COLUMNS }}
         >
           {table.getHeaderGroups().map((headerGroup) =>
             headerGroup.headers.map((header) => {
-              const isSticky =
-                header.column.id === "rank" || header.column.id === "token";
-
               return (
                 <div
                   key={header.id}
                   className={cn(
-                    "px-3 py-2 text-sm font-medium uppercase",
-                    isSticky && "sticky bg-background z-30",
+                    "px-3 py-2 text-sm text-muted font-medium uppercase",
                     shouldAlignRight(header.id) ? "text-right" : "text-left",
+                    header.column.id === "token" &&
+                      "sticky left-0 bg-background/75 backdrop-blur-xs",
+                    header.column.id === "rank" &&
+                      "lg:sticky lg:left-0 bg-background/75",
                   )}
-                  style={{
-                    left: isSticky
-                      ? STICKY_OFFSET[
-                          header.column.id as keyof typeof STICKY_OFFSET
-                        ]
-                      : undefined,
-                  }}
                 >
                   {flexRender(
                     header.column.columnDef.header,
@@ -115,9 +111,6 @@ export const DataTable = memo(function ({
               }
             >
               {row.getVisibleCells().map((cell) => {
-                const isSticky =
-                  cell.column.id === "rank" || cell.column.id === "token";
-
                 return (
                   <div
                     key={cell.id}
@@ -126,16 +119,11 @@ export const DataTable = memo(function ({
                       shouldAlignRight(cell.column.id)
                         ? "justify-end"
                         : "justify-start",
-                      isSticky &&
-                        "sticky bg-background z-10 border-r border-border",
+                      cell.column.id === "token" &&
+                        "sticky left-0 lg:left-15 bg-black z-20 border-r border-border shadow-[2px_0_6px_rgba(0,0,0,0.2)]",
+                      cell.column.id === "rank" &&
+                        "lg:sticky lg:left-0 bg-black z-20 border-r border-border",
                     )}
-                    style={{
-                      left: isSticky
-                        ? STICKY_OFFSET[
-                            cell.column.id as keyof typeof STICKY_OFFSET
-                          ]
-                        : undefined,
-                    }}
                   >
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </div>
@@ -147,7 +135,7 @@ export const DataTable = memo(function ({
 
         <div
           ref={ref}
-          className="flex flex-col items-center justify-center gap-2 py-6"
+          className="sticky left-0 flex flex-col items-center justify-center gap-2 py-5"
         >
           {hasNextPage ? (
             <Fragment>

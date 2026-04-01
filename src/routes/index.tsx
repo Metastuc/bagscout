@@ -58,6 +58,8 @@ function RouteComponent() {
 
     return (
         <Fragment>
+            <section className="lg:hidden">mobile nav</section>
+
             <DataTable tokens={processedTokensMemo} />
 
             <Suspense fallback={undefined}>

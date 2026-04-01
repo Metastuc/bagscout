@@ -27,7 +27,7 @@ export const useClientViewState = create<AppState>()(
         filters: {},
         tablePageIndex: 0,
         tablePageSize: 20,
-        tickerTokens: [...Array(20)],
+        tickerTokens: [],
 
         createShareableLink() {
             const { activeTab, filters, tablePageIndex } = get();

@@ -33,7 +33,7 @@ export const DataTable = memo(function ({ tokens }: DataTableProps) {
         <section className="size-full overflow-hidden">
             <div className="size-full overflow-auto">
                 <aside
-                    className="grid min-w-full"
+                    className="bg-background/50 sticky top-0 z-10 grid w-max min-w-full border-b backdrop-blur-xs"
                     style={{
                         gridTemplateColumns: GRID_COLUMNS,
                     }}
@@ -54,7 +54,7 @@ export const DataTable = memo(function ({ tokens }: DataTableProps) {
 
                             return (
                                 <div
-                                    className="grid min-w-full border-y"
+                                    className="grid min-w-full overflow-hidden border-b"
                                     key={row.id}
                                     style={{
                                         gridTemplateColumns: GRID_COLUMNS,

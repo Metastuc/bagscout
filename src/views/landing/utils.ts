@@ -60,19 +60,19 @@ export function processTokenData(tokens: Array<MergedBagsTokenWithPool>, activeT
         .filter((token) => {
             switch (activeTab) {
                 case "trending":
-                    return (token.status === "PRE_GRAD" || token.status === "MIGRATED") && !!token.geckoData;
+                    return (token.status === "PRE_GRAD" || token.status === "MIGRATED") && !!token.geckoData?.data?.attributes;
 
                 case "new":
-                    return token.status === "PRE_LAUNCH";
+                    return token.status === "PRE_LAUNCH" || token.status === "PRE_GRAD";
 
                 case "top_bags":
-                    return token.status === "MIGRATED" && !!token.geckoData;
+                    return !!token.geckoData?.data?.attributes;
 
                 case "top_gainers":
-                    return Number(token.geckoData?.data?.attributes.price_change_percentage.h24 ?? 0) > 0;
+                    return !!token.geckoData?.data?.attributes && Number(token.geckoData?.data?.attributes.price_change_percentage.h24 ?? 0) > 0;
 
                 case "top_losers":
-                    return Number(token.geckoData?.data?.attributes.price_change_percentage.h24 ?? 0) < 0;
+                    return !!token.geckoData?.data?.attributes && Number(token.geckoData?.data?.attributes.price_change_percentage.h24 ?? 0) < 0;
 
                 default:
                     return true;
@@ -82,6 +82,12 @@ export function processTokenData(tokens: Array<MergedBagsTokenWithPool>, activeT
             switch (activeTab) {
                 case "trending":
                     return Number(b.geckoData?.data?.attributes.volume_usd.h24 ?? 0) - Number(a.geckoData?.data?.attributes.volume_usd.h24 ?? 0);
+
+                case "new":
+                    return (
+                        new Date(b.geckoData?.data?.attributes.pool_created_at ?? 0).getTime() -
+                        new Date(a.geckoData?.data?.attributes.pool_created_at ?? 0).getTime()
+                    );
 
                 case "top_gainers":
                     return (

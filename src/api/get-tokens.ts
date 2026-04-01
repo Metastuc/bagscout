@@ -29,6 +29,8 @@ export const getAllTokensQueryOptions = () =>
     queryOptions({
         queryKey: ["all_tokens"],
         queryFn: () => getTokensServerFn(),
+        placeholderData: (previous) => previous,
         refetchInterval: toTime({ unit: "seconds", value: 30, output: "milliseconds" }) as number,
         refetchIntervalInBackground: true,
+        staleTime: toTime({ unit: "seconds", value: 20, output: "milliseconds" }) as number,
     });

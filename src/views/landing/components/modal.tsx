@@ -105,7 +105,10 @@ export function TokenDetailsModal({ token, onClose }: TokenDetailsModalProps) {
 
                     {completePoolData ? (
                         <section className="my-4 space-y-3">
-                            <h4 className="text-sm font-semibold">Transactions · 24h</h4>
+                            <h4 className="text-sm font-semibold">
+                                Transactions · 24h
+                                <span className="ml-2 text-xs text-gray-400">Vol: {displaySafeValue(totalVolume, formatTokenPrice)}</span>
+                            </h4>
 
                             <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                                 {(

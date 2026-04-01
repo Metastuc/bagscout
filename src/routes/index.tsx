@@ -1,6 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { Fragment, lazy, Suspense, useMemo } from "react";
+import { Fragment, lazy, Suspense, useEffect, useMemo } from "react";
+import { useShallow } from "zustand/shallow";
 
 import { getAllTokensQueryOptions } from "#/api/get-tokens.ts";
 import { useClientViewState } from "#/lib/store.ts";
@@ -33,9 +34,27 @@ function RouteComponent() {
     const navigate = Route.useNavigate();
     const { token } = Route.useSearch();
 
-    const activeTab = useClientViewState((state) => state.activeTab);
+    const { activeTab, setTickerTokens } = useClientViewState(
+        useShallow((state) => ({ activeTab: state.activeTab, setTickerTokens: state.setTickerTokens })),
+    );
+
     const selectedToken = token ? data?.tokens.find((t) => t.tokenMint === token) : undefined;
     const processedTokensMemo = useMemo(() => processTokenData(data.tokens, activeTab), [data.tokens, activeTab]);
+
+    useEffect(
+        function () {
+            setTickerTokens(
+                data.tokens
+                    .sort(
+                        (a, b) =>
+                            (Number(b.geckoData?.data?.attributes.volume_usd?.h24) || 0) -
+                            (Number(a.geckoData?.data?.attributes.volume_usd?.h24) || 0),
+                    )
+                    .slice(0, 20),
+            );
+        },
+        [data.tokens],
+    );
 
     return (
         <Fragment>

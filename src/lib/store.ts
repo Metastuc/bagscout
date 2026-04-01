@@ -6,6 +6,7 @@ interface AppStateValues {
     filters: Record<string, unknown>;
     tablePageIndex: number;
     tablePageSize: number;
+    tickerTokens: Array<MergedBagsTokenWithPool>;
 }
 
 interface AppStateActions {
@@ -15,6 +16,7 @@ interface AppStateActions {
     setFilters: (filters: AppStateValues["filters"]) => void;
     setTablePageIndex: (index: number) => void;
     setTablePageSize: (size: number) => void;
+    setTickerTokens: (tokens: Array<MergedBagsTokenWithPool>) => void;
 }
 
 export type AppState = AppStateValues & AppStateActions;
@@ -25,6 +27,7 @@ export const useClientViewState = create<AppState>()(
         filters: {},
         tablePageIndex: 0,
         tablePageSize: 20,
+        tickerTokens: [...Array(20)],
 
         createShareableLink() {
             const { activeTab, filters, tablePageIndex } = get();
@@ -47,5 +50,7 @@ export const useClientViewState = create<AppState>()(
         setTablePageIndex: (index) => set({ tablePageIndex: index }),
 
         setTablePageSize: (size) => set({ tablePageSize: size }),
+
+        setTickerTokens: (tokens) => set({ tickerTokens: tokens }),
     })),
 );

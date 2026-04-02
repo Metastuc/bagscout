@@ -33,10 +33,7 @@ new Worker(
 
     try {
       const isDataFresh = await withDependencies(async (deps) => {
-        const cache = deps.cache.readCache();
-        const cachedToken = cache?.tokens?.find(
-          (t) => t.poolAddress === poolAddress,
-        );
+        const cachedToken = await deps.cache.getToken(poolAddress);
         if (!cachedToken?.geckoData?.fetchedAt) return false;
 
         const dataAge = Date.now() - cachedToken.geckoData.fetchedAt;

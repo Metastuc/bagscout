@@ -23,22 +23,14 @@ export const getTokensServerFn = createServerFn({ method: "GET" })
     async ({ data: { limit, tab, cursor } }) =>
       await withDependencies(async (deps) => {
         try {
-          const cache = deps.cache.readCache();
+          const tokens = await deps.cache.getAllTokens();
 
-          if (!cache) {
+          if (!tokens.length) {
             deps.logger.warn({ msg: "Cache miss - worker not ready yet" });
             return { tokens: [], nextCursor: undefined };
           }
 
-          deps.logger.info({
-            msg: "Cache hit",
-            data: {
-              lastFetched: cache?.lastFetched,
-              tokenCount: cache?.tokens?.length,
-            },
-          });
-
-          const sortedTokens = processTokenData(cache.tokens, tab);
+          const sortedTokens = processTokenData(tokens, tab);
           const startIndex = cursor
             ? sortedTokens.findIndex((token) => token.tokenMint === cursor) + 1
             : 0;

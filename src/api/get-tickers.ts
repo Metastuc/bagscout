@@ -8,11 +8,11 @@ import { withDependencies } from "../modules";
 const getTickersServerFn = createServerFn({ method: "GET" }).handler(
   async () => {
     return await withDependencies(async (deps) => {
-      const cache = deps.cache.readCache();
-      if (!cache) return { tokens: [] };
+      const tokens = await deps.cache.getAllTokens();
+      if (!tokens.length) return { tokens: [] };
 
       return {
-        tokens: [...cache.tokens]
+        tokens: [...tokens]
           .sort(
             (a, b) =>
               (Number(b.geckoData?.data?.attributes.volume_usd?.h24) || 0) -

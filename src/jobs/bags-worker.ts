@@ -34,6 +34,13 @@ new Worker(
       ts: Date.now(),
     });
 
+    const existingTokens = await withDependencies((deps) =>
+      deps.cache.getAllTokens(),
+    );
+    const existingMap = new Map(
+      existingTokens?.map((token) => [token.poolAddress, token]),
+    );
+
     const [tokens, pools] = await Promise.all([
       withDependencies((deps) => getTokensFromBags(deps)),
       withDependencies((deps) => getPoolsFromBags(deps)),
@@ -42,18 +49,14 @@ new Worker(
     const merged = mergeBagsTokenWithPool(tokens ?? [], pools ?? []);
 
     await withDependencies(async (deps) => {
-      const cache = deps.cache.readCache();
-
-      const mergeExistingCache = merged.map((token) => {
-        const cachedToken = cache?.tokens?.find(
-          (t) => t.tokenMint === token.tokenMint,
-        );
-        return cachedToken?.geckoData
-          ? { ...token, geckoData: cachedToken.geckoData }
+      const mergeWithCache = merged.map(function (token) {
+        const cached = existingMap.get(token.poolAddress as string);
+        return cached?.geckoData
+          ? { ...token, geckoData: cached.geckoData }
           : token;
       });
 
-      deps.cache.writeCache(mergeExistingCache);
+      await deps.cache.setMultipleTokens(mergeWithCache);
     });
 
     for (const token of merged) {

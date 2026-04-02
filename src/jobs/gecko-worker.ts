@@ -43,38 +43,50 @@ new Worker(
         for (const poolAddress of poolAddresses) {
           const existing = await deps.cache.getToken(poolAddress);
           const poolData = poolsMap.get(poolAddress) ?? null;
-          let shouldUpdate = true;
 
           if (existing?.geckoData?.fetchedAt) {
             const dataAge = Date.now() - existing.geckoData.fetchedAt;
-            const isFresh =
-              dataAge <
-              (toTime({
-                unit: "hours",
-                value: 1,
-                output: "milliseconds",
-              }) as number);
+            const transactionsIn24H =
+              existing.geckoData.data?.attributes?.transactions?.h24;
+            const totalTransactions =
+              (transactionsIn24H?.sells ?? 0) + (transactionsIn24H?.buys ?? 0);
+            const staleDuration =
+              totalTransactions > 100
+                ? (toTime({
+                    unit: "minutes",
+                    value: 2,
+                    output: "milliseconds",
+                  }) as number)
+                : totalTransactions > 10
+                  ? (toTime({
+                      unit: "minutes",
+                      value: 15,
+                      output: "milliseconds",
+                    }) as number)
+                  : (toTime({
+                      unit: "minutes",
+                      value: 30,
+                      output: "milliseconds",
+                    }) as number);
 
-            if (isFresh) {
+            if (dataAge < staleDuration) {
               deps.logger.info({
                 msg: "Skipping Gecko API update for pool due to recent data",
                 data: { poolAddress },
               });
-              shouldUpdate = false;
+              continue;
             }
           }
 
-          if (shouldUpdate) {
-            await deps.cache.updateTokenCache(poolAddress, {
-              data: poolData,
-              fetchedAt: Date.now(),
-            });
+          await deps.cache.updateTokenCache(poolAddress, {
+            data: poolData,
+            fetchedAt: Date.now(),
+          });
 
-            deps.logger.info({
-              msg: "Updated Gecko data for pool",
-              data: { poolAddress, hasData: !!poolData },
-            });
-          }
+          deps.logger.info({
+            msg: "Updated Gecko data for pool",
+            data: { poolAddress, hasData: !!poolData },
+          });
         }
       });
 

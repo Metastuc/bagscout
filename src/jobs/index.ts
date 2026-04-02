@@ -19,8 +19,8 @@ export async function startJobs() {
       jobId: "bags-refresh-feed",
       repeat: {
         every: toTime({
-          unit: "hours",
-          value: 6,
+          unit: "minutes",
+          value: 5,
           output: "milliseconds",
         }) as number,
       },

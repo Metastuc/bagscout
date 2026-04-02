@@ -60,13 +60,6 @@ new Worker(
       await deps.cache.setMultipleTokens(mergeWithCache);
     });
 
-    // for (const token of merged) {
-    //     if (!token.poolAddress) continue;
-    //     await geckoDataQueue.add("refresh-gecko-data", {
-    //         poolAddress: token.poolAddress,
-    //     });
-    // }
-
     const poolAddresses = merged
       .map((token) => token.poolAddress)
       .filter(Boolean) as Array<string>;

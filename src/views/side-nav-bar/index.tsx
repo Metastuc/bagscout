@@ -42,11 +42,10 @@ function SideNavLink({
   label: string;
   value: NavigationTab;
 }) {
-  const { activeTab, setActiveTab, setTablePageIndex } = useClientViewState(
+  const { activeTab, setActiveTab } = useClientViewState(
     useShallow((state) => ({
       activeTab: state.activeTab,
       setActiveTab: state.setActiveTab,
-      setTablePageIndex: state.setTablePageIndex,
     })),
   );
   const isActive = activeTab === value;
@@ -55,7 +54,6 @@ function SideNavLink({
     <li
       onClick={() => {
         setActiveTab(value);
-        setTablePageIndex(0);
       }}
       className={cn(
         "text-sm transition-all duration-100 cursor-pointer rounded-xl px-3 py-2.5 relative flex items-center gap-3",

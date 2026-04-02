@@ -68,7 +68,7 @@ export const DataTable = memo(function ({
         className="scrollbar scrollbar-thumb-muted-foreground/30 hover:scrollbar-thumb-muted-foreground/50 scrollbar-track-transparent size-full overflow-auto"
       >
         <aside
-          className="sticky top-0 z-30 grid w-max min-w-full border-b bg-black/50 backdrop-blur-xs"
+          className="sticky top-0 z-30 grid w-max min-w-full border-b bg-black/75 backdrop-blur-xs"
           style={{ gridTemplateColumns: GRID_COLUMNS }}
         >
           {table.getHeaderGroups().map((headerGroup) =>
@@ -82,7 +82,7 @@ export const DataTable = memo(function ({
                     header.column.id === "token" &&
                       "sticky left-0 lg:left-15 bg-background/75 backdrop-blur-xs",
                     header.column.id === "rank" &&
-                      "lg:sticky lg:left-0 bg-background/75",
+                      "lg:sticky lg:left-0 bg-background/75 backdrop-blur-xs",
                   )}
                 >
                   {flexRender(
@@ -99,7 +99,7 @@ export const DataTable = memo(function ({
           {table.getRowModel().rows.map((row) => (
             <div
               key={row.id}
-              className="hover:bg-muted/30 grid min-w-fit cursor-pointer border-b"
+              className="hover:bg-muted/30 group grid min-w-fit cursor-pointer border-b"
               style={{ gridTemplateColumns: GRID_COLUMNS }}
               onClick={() =>
                 navigate({

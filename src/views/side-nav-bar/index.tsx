@@ -1,3 +1,4 @@
+import { type Icon } from "@phosphor-icons/react";
 import { useShallow } from "zustand/shallow";
 
 import { useClientViewState } from "#/lib/store.ts";
@@ -38,9 +39,11 @@ export function SideNavBar() {
 function SideNavLink({
   label,
   value,
+  icon: NavIcon,
 }: {
   label: string;
   value: NavigationTab;
+  icon: Icon;
 }) {
   const { activeTab, setActiveTab } = useClientViewState(
     useShallow((state) => ({
@@ -75,7 +78,7 @@ function SideNavLink({
           isActive ? "text-primary-foreground" : "text-muted-foreground",
         )}
       >
-        {/* {icon} */}
+        <NavIcon size={16} weight={isActive ? "fill" : "regular"} />
       </span>
 
       <span className="truncate">{label}</span>

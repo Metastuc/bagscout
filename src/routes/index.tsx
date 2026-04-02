@@ -105,8 +105,6 @@ function RouteComponent() {
 
   return (
     <Fragment>
-      <section className="lg:hidden">mobile nav</section>
-
       <DataTable
         fetchNextPage={fetchNextPage}
         hasNextPage={hasNextPage}

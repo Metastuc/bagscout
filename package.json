@@ -12,6 +12,7 @@
     "jobs": "bun run ./src/jobs/index.ts",
     "lint": "bunx --bun oxlint --fix .",
     "preview": "bunx --bun vite preview",
+    "start": "bun run server.ts",
     "test": "bunx --bun vitest run"
   },
   "dependencies": {

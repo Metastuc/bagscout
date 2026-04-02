@@ -1,6 +1,8 @@
 import Redis from "ioredis";
 
-export const redis = new Redis("redis://localhost:6379", {
+import { SERVER_ENV } from "../../../env";
+
+export const redis = new Redis(SERVER_ENV.REDIS_URL, {
   maxRetriesPerRequest: null,
 });
 

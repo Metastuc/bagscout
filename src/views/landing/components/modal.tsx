@@ -14,18 +14,12 @@ import {
   formatTokenPrice,
   safeNumber,
 } from "../utils";
+import { StatusTag } from "./status";
 
 interface TokenDetailsModalProps {
   onClose: () => void;
   token: MergedBagsTokenWithPool;
 }
-
-const STATUS_LABELS: Record<BagsTokenInfo["status"], string> = {
-  PRE_LAUNCH: "Pre-Launch",
-  PRE_GRAD: "Pre-Grad",
-  MIGRATING: "Migrating",
-  MIGRATED: "Migrated",
-};
 
 export function TokenDetailsModal({ token, onClose }: TokenDetailsModalProps) {
   const geckoData = token.geckoData?.data;
@@ -60,14 +54,25 @@ export function TokenDetailsModal({ token, onClose }: TokenDetailsModalProps) {
       <DialogContent className="h-200 sm:max-w-200">
         <DialogHeader>
           <DialogTitle>
-            {token.symbol} - {token.name}
+            <div className="flex items-center gap-3">
+              <img src={token.image} className="size-8 rounded-md" />
+
+              <div className="flex flex-col">
+                <span className="text-lg font-semibold">{token.symbol}</span>
+                <span className="text-muted-foreground text-xs">
+                  {token.name}
+                </span>
+              </div>
+            </div>
           </DialogTitle>
           <DialogDescription>
-            {noPoolData
-              ? "Not yet available on GeckoTerminal"
-              : loadingPoolData
-                ? "Loading pool data..."
-                : STATUS_LABELS[token.status]}
+            {noPoolData ? (
+              "Not yet available on GeckoTerminal"
+            ) : loadingPoolData ? (
+              "Loading pool data..."
+            ) : (
+              <StatusTag status={token.status} />
+            )}
           </DialogDescription>
         </DialogHeader>
 
@@ -149,7 +154,7 @@ export function TokenDetailsModal({ token, onClose }: TokenDetailsModalProps) {
             ].map(({ label, value }) => (
               <div
                 key={label}
-                className="flex flex-col rounded-md bg-gray-900 p-3 text-center"
+                className="bg-muted hover:bg-muted/50 flex flex-col rounded-xs p-3 text-center transition"
               >
                 <span className="text-xs text-gray-400">{label}</span>
                 <span className="font-semibold">
@@ -161,12 +166,7 @@ export function TokenDetailsModal({ token, onClose }: TokenDetailsModalProps) {
 
           {completePoolData ? (
             <section className="my-4 space-y-3">
-              <h4 className="text-sm font-semibold">
-                Transactions · 24h
-                <span className="ml-2 text-xs text-gray-400">
-                  Vol: {displaySafeValue(totalVolume, formatTokenPrice)}
-                </span>
-              </h4>
+              <h4 className="text-sm font-semibold">Transactions · 24h</h4>
 
               <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                 {(
@@ -201,7 +201,7 @@ export function TokenDetailsModal({ token, onClose }: TokenDetailsModalProps) {
                 ).map(({ label, count, sub }) => (
                   <div
                     key={label}
-                    className="flex flex-col rounded-none bg-gray-900 p-3 text-center"
+                    className="bg-muted hover:bg-muted/50 flex flex-col rounded-xs p-3 text-center transition"
                   >
                     <span className="text-xs text-gray-400">{label}</span>
                     <span className="font-semibold">{count}</span>

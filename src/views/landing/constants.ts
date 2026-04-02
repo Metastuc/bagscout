@@ -9,7 +9,7 @@ minmax(12.5rem, 1fr)
 6.25rem
 6.25rem
 6.25rem
-10rem
+7rem
 `;
 
 export const STICKY_OFFSET = {

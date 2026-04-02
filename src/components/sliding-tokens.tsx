@@ -8,7 +8,7 @@ export function SlidingTokens() {
   const tickerTokens = useClientViewState((state) => state.tickerTokens);
 
   return (
-    <section className="border-sidebar-border sticky top-15 z-10 h-8.5 w-full overflow-hidden border-y bg-black py-2">
+    <section className="border-sidebar-border sticky top-15 z-50 h-8.5 w-full overflow-hidden border-y bg-black py-2">
       <ul className="hover:paused divide-sidebar-border flex w-max animate-[scroll_180s_linear_infinite] divide-x">
         {[...tickerTokens, ...tickerTokens].map((value, index) => (
           <Token key={index} value={value} />

@@ -77,7 +77,7 @@ export const DataTable = memo(function ({
                 <div
                   key={header.id}
                   className={cn(
-                    "px-3 py-2 text-sm text-muted font-medium uppercase",
+                    "px-3 py-2 text-sm text-muted-foreground font-medium uppercase",
                     shouldAlignRight(header.id) ? "text-right" : "text-left",
                     header.column.id === "token" &&
                       "sticky left-0 lg:left-15 bg-background/75 backdrop-blur-xs",

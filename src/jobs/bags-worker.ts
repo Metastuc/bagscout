@@ -6,6 +6,7 @@ import {
   getTokensFromBags,
 } from "#/modules/services/bags.ts";
 import { mergeBagsTokenWithPool } from "#/modules/utils/merge-bags-pool.ts";
+import { chunkArray } from "#/utils/chunk.ts";
 import { toTime } from "#/utils/time.ts";
 
 import { withDependencies } from "../modules";
@@ -59,10 +60,21 @@ new Worker(
       await deps.cache.setMultipleTokens(mergeWithCache);
     });
 
-    for (const token of merged) {
-      if (!token.poolAddress) continue;
-      await geckoDataQueue.add("refresh-gecko-data", {
-        poolAddress: token.poolAddress,
+    // for (const token of merged) {
+    //     if (!token.poolAddress) continue;
+    //     await geckoDataQueue.add("refresh-gecko-data", {
+    //         poolAddress: token.poolAddress,
+    //     });
+    // }
+
+    const poolAddresses = merged
+      .map((token) => token.poolAddress)
+      .filter(Boolean) as Array<string>;
+    const poolBatches = chunkArray(poolAddresses, 25);
+
+    for (const batch of poolBatches) {
+      await geckoDataQueue.add("refresh-gecko-data-batch", {
+        poolAddresses: batch,
       });
     }
 

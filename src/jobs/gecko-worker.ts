@@ -1,7 +1,7 @@
 import { Queue, Worker } from "bullmq";
 
 import { redis } from "#/modules/core/redis.ts";
-import { getGeckoPool } from "#/modules/services/gecko.ts";
+import { getGeckoPools } from "#/modules/services/gecko.ts";
 import { toTime } from "#/utils/time.ts";
 
 import { withDependencies } from "../modules";
@@ -29,38 +29,60 @@ new Worker(
       ts: Date.now(),
     });
 
-    const { poolAddress } = job.data;
+    const { poolAddresses } = job.data as { poolAddresses: Array<string> };
 
     try {
-      const isDataFresh = await withDependencies(async (deps) => {
-        const cachedToken = await deps.cache.getToken(poolAddress);
-        if (!cachedToken?.geckoData?.fetchedAt) return false;
-
-        const dataAge = Date.now() - cachedToken.geckoData.fetchedAt;
-        return (
-          dataAge <
-          (toTime({
-            unit: "hours",
-            value: 1,
-            output: "milliseconds",
-          }) as number)
-        ); // Only fetch if data is older than 1 hour
-      });
-
-      if (isDataFresh) return null;
-
-      const geckoDataWithTimestamp = {
-        data: (await withDependencies((deps) =>
-          getGeckoPool(poolAddress, deps),
-        )) as GeckoPoolData,
-        fetchedAt: Date.now(),
-      };
+      const pools = await withDependencies(
+        async (deps) => await getGeckoPools(poolAddresses, deps),
+      );
+      const poolsMap = new Map(
+        pools?.map((pool) => [pool.attributes.address, pool]),
+      );
 
       await withDependencies(async (deps) => {
-        deps.cache.updateTokenCache(poolAddress, geckoDataWithTimestamp);
+        for (const poolAddress of poolAddresses) {
+          const existing = await deps.cache.getToken(poolAddress);
+          const poolData = poolsMap.get(poolAddress) ?? null;
+          let shouldUpdate = true;
+
+          if (existing?.geckoData?.fetchedAt) {
+            const dataAge = Date.now() - existing.geckoData.fetchedAt;
+            const isFresh =
+              dataAge <
+              (toTime({
+                unit: "hours",
+                value: 1,
+                output: "milliseconds",
+              }) as number);
+
+            if (isFresh) {
+              deps.logger.info({
+                msg: "Skipping Gecko API update for pool due to recent data",
+                data: { poolAddress },
+              });
+              shouldUpdate = false;
+            }
+          }
+
+          if (shouldUpdate) {
+            await deps.cache.updateTokenCache(poolAddress, {
+              data: poolData,
+              fetchedAt: Date.now(),
+            });
+
+            deps.logger.info({
+              msg: "Updated Gecko data for pool",
+              data: { poolAddress, hasData: !!poolData },
+            });
+          }
+        }
       });
 
-      return geckoDataWithTimestamp;
+      console.log("GECKO BATCH RESULT", {
+        requested: poolAddresses.length,
+        received: pools.length,
+        sample: pools[0]?.attributes?.address,
+      });
     } catch (error) {
       await withDependencies(async (deps) => {
         deps.logger.error({

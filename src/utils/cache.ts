@@ -56,7 +56,12 @@ export const cacheUtils = {
     geckoData: MergedBagsTokenWithPool["geckoData"],
   ) {
     const existing = await this.getToken(poolAddress);
-    if (!existing) return;
+    if (!existing) {
+      console.warn(
+        `Attempted to update cache for non-existent token: ${poolAddress}`,
+      );
+      return;
+    }
 
     await this.setToken({ ...existing, geckoData });
   },

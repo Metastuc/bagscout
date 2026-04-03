@@ -6,7 +6,7 @@ import { NAVIGATION_LINKS } from "#/views/side-nav-bar/constants.ts";
 
 export function LandingNavigation() {
     return (
-        <nav className="border-sidebar-border flex items-center justify-center border-b lg:hidden p-2">
+        <nav className="border-sidebar-border flex items-center justify-center border-b p-2 lg:hidden">
             <ul className="scrollbar-none flex items-center justify-start gap-3 overflow-auto *:shrink-0">
                 {NAVIGATION_LINKS.discover.map((value, index) => (
                     <MobileNavLink key={index} {...value} />
@@ -16,7 +16,7 @@ export function LandingNavigation() {
     );
 }
 
-function MobileNavLink({ label, value }: { label: string; value: NavigationTab }) {
+function MobileNavLink({ label, value }: { label: string; value: DiscoverTabs }) {
     const { activeTab, setActiveTab } = useClientViewState(
         useShallow((state) => ({
             activeTab: state.activeTab,

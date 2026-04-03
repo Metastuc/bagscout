@@ -6,6 +6,5 @@ export const redis = new Redis(SERVER_ENV.REDIS_URL, {
     maxRetriesPerRequest: null,
 });
 
-export function isRedisAvailable() {
-    return redis.status === "ready";
-}
+redis.on("error", (error) => console.error(error));
+redis.on("connect", () => console.log("Connected to Redis"));

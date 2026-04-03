@@ -10,7 +10,7 @@
         "dev": "bunx --bun vite dev",
         "format": "bunx oxfmt",
         "jobs": "bun run ./src/jobs/index.ts",
-        "lint": "bunx --bun oxlint --fix .",
+        "lint": "bunx --bun oxlint --type-aware --type-check --fix .",
         "preview": "bunx --bun vite preview",
         "start": "bun run server.ts",
         "test": "bunx --bun vitest run"
@@ -67,6 +67,7 @@
         "jsdom": "^29.0.1",
         "oxfmt": "^0.43.0",
         "oxlint": "^1.58.0",
+        "oxlint-tsgolint": "^0.19.0",
         "tailwind-scrollbar": "^4.0.2",
         "typescript": "^6.0.2",
         "vite": "^8.0.3",

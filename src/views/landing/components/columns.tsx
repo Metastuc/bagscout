@@ -1,7 +1,8 @@
 import { StarIcon } from "@phosphor-icons/react";
 import type { ColumnDef } from "@tanstack/react-table";
-import { ChartCandlestick, ExternalLink } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 
+import { SafeImage } from "#/components/safe-image.tsx";
 import { cn } from "#/lib/utils.ts";
 
 import { computeTokenAge, formatPercentage, formatPriceToUSD, formatTokenPrice } from "../utils";
@@ -25,7 +26,7 @@ export const TABLE_COLUMNS: Array<ColumnDef<MergedBagsTokenWithPool>> = [
             return (
                 <div className="flex size-full gap-2">
                     <aside className="flex items-center justify-center">
-                        <img src={row.original.image} className="size-10 rounded-xs" />
+                        <SafeImage alt={row.original.name} src={row.original.image} symbol={row.original.symbol} />
                     </aside>
 
                     <aside className="flex flex-col items-start gap-1">
@@ -148,11 +149,6 @@ export const TABLE_COLUMNS: Array<ColumnDef<MergedBagsTokenWithPool>> = [
 
     {
         cell({ row }) {
-            // function handleTradeButton(event: React.MouseEvent<HTMLButtonElement>) {
-            //   event.stopPropagation();
-            //   console.log("trade");
-            // }
-
             function handleWatchlistButton(event: React.MouseEvent<HTMLButtonElement>) {
                 event.stopPropagation();
                 console.log("watchlist");
@@ -165,16 +161,6 @@ export const TABLE_COLUMNS: Array<ColumnDef<MergedBagsTokenWithPool>> = [
 
             return (
                 <div className="flex items-center justify-center gap-1 opacity-50 transition-opacity duration-100 group-hover:opacity-100">
-                    {/* <button
-            className="hover:bg-muted rounded-md p-2"
-            title="Trade"
-            onClick={handleTradeButton}
-          >
-            <i className="flex size-5 items-center justify-center">
-              <ChartCandlestick />
-            </i>
-          </button> */}
-
                     <button className="hover:bg-muted rounded-md p-2" title="Add to watchlist" onClick={handleWatchlistButton}>
                         <i className="flex size-5 items-center justify-center">
                             <StarIcon />

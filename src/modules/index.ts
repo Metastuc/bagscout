@@ -1,5 +1,6 @@
-import { cacheUtils } from "#/utils/cache.ts";
 import { appLogger } from "#/utils/log.ts";
+
+import { cacheUtils } from "./utils/cache";
 
 const appDependencies: AppDependencies = {
     logger: appLogger,

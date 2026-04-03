@@ -7,17 +7,10 @@ import { withDependencies } from "../modules";
 
 const getTickersServerFn = createServerFn({ method: "GET" }).handler(async () => {
     return await withDependencies(async (deps) => {
-        const tokens = await deps.cache.getAllTokens();
+        const tokens = await deps.cache.getTickerTokens();
         if (!tokens.length) return { tokens: [] };
 
-        return {
-            tokens: [...tokens]
-                .sort(
-                    (a, b) =>
-                        (Number(b.geckoData?.data?.attributes.volume_usd?.h24) || 0) - (Number(a.geckoData?.data?.attributes.volume_usd?.h24) || 0),
-                )
-                .slice(0, 20),
-        };
+        return { tokens };
     });
 });
 
@@ -32,8 +25,8 @@ export const getTickerQueryOptions = () =>
         }) as number,
         refetchIntervalInBackground: true,
         staleTime: toTime({
-            unit: "seconds",
-            value: 10,
+            unit: "minutes",
+            value: 1,
             output: "milliseconds",
         }) as number,
     });

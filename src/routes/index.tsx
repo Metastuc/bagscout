@@ -1,7 +1,6 @@
-import { useInfiniteQuery, useQuery, type InfiniteData } from "@tanstack/react-query";
+import { useInfiniteQuery, type InfiniteData } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { Fragment, lazy, Suspense, useEffect, useMemo } from "react";
-import { useShallow } from "zustand/shallow";
+import { Fragment, lazy, Suspense, useMemo } from "react";
 
 import { getTickerQueryOptions } from "#/api/get-tickers.ts";
 import { getTokensServerFn } from "#/api/get-tokens.ts";
@@ -33,7 +32,7 @@ export const Route = createFileRoute("/")({
             initialPageParam: undefined,
         });
 
-        await context.queryClient.prefetchQuery(getTickerQueryOptions());
+        await context.queryClient.ensureQueryData(getTickerQueryOptions());
     },
 
     validateSearch(search: Record<string, unknown>): RouteSearchParams {
@@ -47,25 +46,17 @@ function RouteComponent() {
     const navigate = Route.useNavigate();
     const { token } = Route.useSearch();
 
-    const { activeTab, setTickerTokens } = useClientViewState(
-        useShallow((state) => ({
-            activeTab: state.activeTab,
-            setTickerTokens: state.setTickerTokens,
-        })),
-    );
+    const activeTab = useClientViewState((state) => state.activeTab);
 
     const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery<
         TokensPage,
         Error,
         InfiniteData<TokensPage>,
-        [string, NavigationTab],
+        [string, DiscoverTabs],
         string | undefined
     >({
         queryKey: ["all_tokens", activeTab],
-        queryFn: ({ pageParam }) =>
-            getTokensServerFn({
-                data: { limit: 20, tab: activeTab, cursor: pageParam },
-            }),
+        queryFn: ({ pageParam }) => getTokensServerFn({ data: { limit: 20, tab: activeTab, cursor: pageParam } }),
         getNextPageParam: (lastPage) => lastPage.nextCursor,
         initialPageParam: undefined,
         placeholderData: (previous) => previous,
@@ -82,17 +73,8 @@ function RouteComponent() {
         }) as number,
     });
 
-    const { data: tickerTokens } = useQuery(getTickerQueryOptions());
-
     const allTokens = useMemo(() => data?.pages.flatMap((page) => page.tokens) ?? [], [data]);
     const selectedToken = token ? allTokens.find((t) => t.tokenMint === token) : undefined;
-
-    useEffect(
-        function () {
-            setTickerTokens(tickerTokens?.tokens ?? []);
-        },
-        [tickerTokens],
-    );
 
     return (
         <Fragment>
@@ -105,7 +87,7 @@ function RouteComponent() {
                     <TokenDetailsModal
                         token={selectedToken}
                         onClose={() => {
-                            navigate({ search: { token: undefined } });
+                            void navigate({ search: { token: undefined } });
                         }}
                     />
                 ) : null}

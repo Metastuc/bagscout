@@ -1,6 +1,3 @@
-import { useShallow } from "zustand/shallow";
-
-import { useClientViewState } from "#/lib/store.ts";
 import { cn } from "#/lib/utils.ts";
 
 import { NAVIGATION_LINKS } from "../side-nav-bar/constants";
@@ -17,22 +14,14 @@ export function BottomNavBar() {
     );
 }
 
-function BottomNavLink({ label, value }: { label: string; value: NavigationTab }) {
-    const { activeTab, setActiveTab } = useClientViewState(
-        useShallow((state) => ({
-            activeTab: state.activeTab,
-            setActiveTab: state.setActiveTab,
-        })),
-    );
-    const isActive = activeTab === value;
+function BottomNavLink({ label, value }: { label: string; value: AccountTabs }) {
+    const isActive = false;
 
     return (
         <li
-            onClick={() => {
-                setActiveTab(value);
-            }}
+            onClick={() => {}}
             className={cn(
-                "group text-xs transition-all duration-100 cursor-pointer rounded-xl py-2 px-3 relative flex items-center",
+                "group text-xs transition-all duration-100 cursor-pointer py-2 px-3 relative flex items-center",
                 "hover:bg-primary/10 hover:translate-x-1",
                 isActive ? "bg-primary/5 text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
             )}

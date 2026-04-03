@@ -1,5 +1,6 @@
-import type { cacheUtils } from "#/utils/cache.ts";
 import type { appLogger } from "#/utils/log.ts";
+
+import { cacheUtils } from "./utils/cache";
 
 interface LocalDependencies {
     logger: typeof appLogger;

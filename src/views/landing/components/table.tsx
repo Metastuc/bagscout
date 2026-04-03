@@ -42,9 +42,11 @@ export const DataTable = memo(function ({ fetchNextPage, tokens, hasNextPage, is
         if (hasNextPage && !isFetchingNextPage && !isFetching.current) {
             isFetching.current = true;
 
-            fetchNextPage().finally(() => {
-                isFetching.current = false;
-            });
+            fetchNextPage()
+                .catch(console.error)
+                .finally(() => {
+                    isFetching.current = false;
+                });
         }
     }, [isIntersecting, hasNextPage, isFetchingNextPage]);
 

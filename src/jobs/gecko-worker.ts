@@ -20,6 +20,12 @@ export const geckoDataQueue = new Queue("gecko-data-refresh", {
     },
 });
 
+const [$2Minutes, $15Minutes, $30Minutes] = [
+    toTime({ unit: "minutes", value: 2, output: "milliseconds" }) as number,
+    toTime({ unit: "minutes", value: 15, output: "milliseconds" }) as number,
+    toTime({ unit: "minutes", value: 30, output: "milliseconds" }) as number,
+];
+
 new Worker(
     "gecko-data-refresh",
     async function (job) {
@@ -44,24 +50,7 @@ new Worker(
                         const dataAge = Date.now() - existing.geckoData.fetchedAt;
                         const transactionsIn24H = existing.geckoData.data?.attributes?.transactions?.h24;
                         const totalTransactions = (transactionsIn24H?.sells ?? 0) + (transactionsIn24H?.buys ?? 0);
-                        const staleDuration =
-                            totalTransactions > 100
-                                ? (toTime({
-                                      unit: "minutes",
-                                      value: 2,
-                                      output: "milliseconds",
-                                  }) as number)
-                                : totalTransactions > 10
-                                  ? (toTime({
-                                        unit: "minutes",
-                                        value: 15,
-                                        output: "milliseconds",
-                                    }) as number)
-                                  : (toTime({
-                                        unit: "minutes",
-                                        value: 30,
-                                        output: "milliseconds",
-                                    }) as number);
+                        const staleDuration = totalTransactions > 100 ? $2Minutes : totalTransactions > 10 ? $15Minutes : $30Minutes;
 
                         if (dataAge < staleDuration) {
                             deps.logger.info({
@@ -76,12 +65,9 @@ new Worker(
                         data: poolData,
                         fetchedAt: Date.now(),
                     });
-
-                    deps.logger.info({
-                        msg: "Updated Gecko data for pool",
-                        data: { poolAddress, hasData: !!poolData },
-                    });
                 }
+
+                await deps.cache.refreshTickerTokens();
             });
 
             console.log("GECKO BATCH RESULT", {

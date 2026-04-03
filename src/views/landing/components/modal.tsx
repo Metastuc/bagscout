@@ -1,3 +1,4 @@
+import { SafeImage } from "#/components/safe-image.tsx";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "#/components/ui/dialog.tsx";
 
 import { useGeckoPoolData } from "../hooks";
@@ -31,7 +32,7 @@ export function TokenDetailsModal({ token, onClose }: TokenDetailsModalProps) {
                 <DialogHeader>
                     <DialogTitle>
                         <div className="flex items-center gap-3">
-                            <img src={token.image} className="size-8 rounded-md" />
+                            <SafeImage alt={token.name} src={token.image} symbol={token.symbol} />
 
                             <div className="flex flex-col">
                                 <span className="text-lg font-semibold">{token.symbol}</span>

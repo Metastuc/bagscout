@@ -8,7 +8,7 @@ export const getTokensServerFn = createServerFn({ method: "GET" })
         z.object({
             cursor: z.string().optional(),
             limit: z.number(),
-            tab: z.enum(["trending", "new", "top_bags", "top_gainers", "top_losers", "deploy_token", "watchlist"]),
+            tab: z.enum(["new", "top_losers", "top_gainers", "top_bags", "trending"]),
         }),
     )
     .handler(
@@ -38,7 +38,7 @@ export const getTokensServerFn = createServerFn({ method: "GET" })
             }),
     );
 
-function processTokenData(tokens: Array<MergedBagsTokenWithPool>, activeTab: NavigationTab) {
+function processTokenData(tokens: Array<MergedBagsTokenWithPool>, activeTab: DiscoverTabs): Array<MergedBagsTokenWithPool> {
     return tokens
         .filter((token) => {
             switch (activeTab) {

@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 
 interface AppStateValues {
-    activeTab: NavigationTab;
+    activeTab: DiscoverTabs;
     filters: Record<string, unknown>;
     tickerTokens: Array<MergedBagsTokenWithPool>;
 }

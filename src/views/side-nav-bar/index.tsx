@@ -31,20 +31,35 @@ export function SideNavBar() {
     );
 }
 
-function SideNavLink({ label, value }: { label: string; value: NavigationTab }) {
+function SideNavLink({ label, value }: { label: string; value: DiscoverTabs | AccountTabs }) {
     const { activeTab, setActiveTab } = useClientViewState(
         useShallow((state) => ({
             activeTab: state.activeTab,
             setActiveTab: state.setActiveTab,
         })),
     );
+
     const isActive = activeTab === value;
+
+    const isNavigationTab = Object.values(NAVIGATION_LINKS.discover)
+        .flat()
+        .some((link) => link.value === value);
+
+    const isModalTab = Object.values(NAVIGATION_LINKS.account)
+        .flat()
+        .some((link) => link.value === value);
+
+    function handleClick() {
+        if (isNavigationTab) {
+            setActiveTab(value as DiscoverTabs);
+        } else if (isModalTab) {
+            console.log("Open modal for", value);
+        }
+    }
 
     return (
         <li
-            onClick={() => {
-                setActiveTab(value);
-            }}
+            onClick={handleClick}
             className={cn(
                 "text-sm transition-all duration-100 cursor-pointer rounded-xl px-3 py-2.5 relative flex items-center gap-3",
                 "group",

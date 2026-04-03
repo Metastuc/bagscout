@@ -8,4 +8,3 @@ export function BottomNavBar() {
         </section>
     );
 }
-

@@ -7,4 +7,3 @@ export function BaseLayout({ children }: { children: React.ReactNode }) {
         </section>
     );
 }
-

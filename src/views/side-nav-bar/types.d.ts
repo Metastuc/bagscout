@@ -1,9 +1,9 @@
 interface LinkItem<T extends NavigationTab = NavigationTab> {
-  label: string;
-  value: T;
+    label: string;
+    value: T;
 }
 
 interface NavigationLinks {
-  discover: Array<LinkItem>;
-  account: Array<LinkItem>;
+    discover: Array<LinkItem>;
+    account: Array<LinkItem>;
 }

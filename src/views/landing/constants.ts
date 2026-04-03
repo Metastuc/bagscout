@@ -13,6 +13,6 @@ minmax(12.5rem, 1fr)
 `;
 
 export const STICKY_OFFSET = {
-  rank: "0rem",
-  token: "3.75rem",
+    rank: "0rem",
+    token: "3.75rem",
 };

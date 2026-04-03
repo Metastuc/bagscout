@@ -4,205 +4,168 @@ import { ChartCandlestick, ExternalLink } from "lucide-react";
 
 import { cn } from "#/lib/utils.ts";
 
-import {
-  computeTokenAge,
-  formatPercentage,
-  formatPriceToUSD,
-  formatTokenPrice,
-} from "../utils";
+import { computeTokenAge, formatPercentage, formatPriceToUSD, formatTokenPrice } from "../utils";
 import { StatusTag } from "./status";
 
 export const TABLE_COLUMNS: Array<ColumnDef<MergedBagsTokenWithPool>> = [
-  {
-    cell({ row }) {
-      return row.index + 1;
+    {
+        cell({ row }) {
+            return row.index + 1;
+        },
+
+        enableSorting: false,
+
+        header: "#",
+
+        id: "rank",
     },
 
-    enableSorting: false,
+    {
+        cell({ row }) {
+            return (
+                <div className="flex size-full gap-2">
+                    <aside className="flex items-center justify-center">
+                        <img src={row.original.image} className="size-10 rounded-xs" />
+                    </aside>
 
-    header: "#",
+                    <aside className="flex flex-col items-start gap-1">
+                        <div className="font-medium">{row.original.symbol}</div>
+                        <StatusTag status={row.original.status} />
+                    </aside>
+                </div>
+            );
+        },
 
-    id: "rank",
-  },
+        enableSorting: false,
 
-  {
-    cell({ row }) {
-      return (
-        <div className="flex size-full gap-2">
-          <aside className="flex items-center justify-center">
-            <img src={row.original.image} className="size-10 rounded-xs" />
-          </aside>
+        header: "Token",
 
-          <aside className="flex flex-col items-start gap-1">
-            <div className="font-medium">{row.original.symbol}</div>
-            <StatusTag status={row.original.status} />
-          </aside>
-        </div>
-      );
+        id: "token",
     },
 
-    enableSorting: false,
+    {
+        cell({ row }) {
+            return formatPriceToUSD(parseFloat(row.original.geckoData?.data?.attributes.base_token_price_usd ?? "0"));
+        },
 
-    header: "Token",
+        header: "Price",
 
-    id: "token",
-  },
+        id: "price",
 
-  {
-    cell({ row }) {
-      return formatPriceToUSD(
-        parseFloat(
-          row.original.geckoData?.data?.attributes.base_token_price_usd ?? "0",
-        ),
-      );
+        sortingFn: "basic",
     },
 
-    header: "Price",
+    {
+        cell({ row }) {
+            const value = parseFloat(row.original.geckoData?.data?.attributes.price_change_percentage.m5 ?? "0");
+            return <span className={cn(value >= 0 ? "text-green-500" : "text-red-500")}>{formatPercentage(value)}</span>;
+        },
 
-    id: "price",
+        header: "5m %",
 
-    sortingFn: "basic",
-  },
+        id: "m5",
 
-  {
-    cell({ row }) {
-      const value = parseFloat(
-        row.original.geckoData?.data?.attributes.price_change_percentage.m5 ??
-          "0",
-      );
-      return (
-        <span className={cn(value >= 0 ? "text-green-500" : "text-red-500")}>
-          {formatPercentage(value)}
-        </span>
-      );
+        sortingFn: "basic",
     },
 
-    header: "5m %",
+    {
+        cell({ row }) {
+            const value = parseFloat(row.original.geckoData?.data?.attributes.price_change_percentage.h24 ?? "0");
+            return <span className={cn(value >= 0 ? "text-green-500" : "text-red-500")}>{formatPercentage(value)}</span>;
+        },
 
-    id: "m5",
+        header: "24h %",
 
-    sortingFn: "basic",
-  },
-
-  {
-    cell({ row }) {
-      const value = parseFloat(
-        row.original.geckoData?.data?.attributes.price_change_percentage.h24 ??
-          "0",
-      );
-      return (
-        <span className={cn(value >= 0 ? "text-green-500" : "text-red-500")}>
-          {formatPercentage(value)}
-        </span>
-      );
+        id: "h24",
     },
 
-    header: "24h %",
+    {
+        cell({ row }) {
+            return parseFloat(row.original.geckoData?.data?.attributes.volume_usd.h24 ?? "0").toLocaleString("en-US", {
+                style: "currency",
+                currency: "USD",
+            });
+        },
 
-    id: "h24",
-  },
+        header: "Volume",
 
-  {
-    cell({ row }) {
-      return parseFloat(
-        row.original.geckoData?.data?.attributes.volume_usd.h24 ?? "0",
-      ).toLocaleString("en-US", {
-        style: "currency",
-        currency: "USD",
-      });
+        id: "volume",
+    },
+    {
+        cell({ row }) {
+            return parseFloat(row.original.geckoData?.data?.attributes.reserve_in_usd ?? "0").toLocaleString("en-US", {
+                style: "currency",
+                currency: "USD",
+            });
+        },
+
+        header: "Liquidity",
+
+        id: "liquidity",
     },
 
-    header: "Volume",
+    {
+        cell({ row }) {
+            return formatTokenPrice(
+                parseFloat(row.original.geckoData?.data?.attributes.market_cap_usd ?? "0") ||
+                    parseFloat(row.original.geckoData?.data?.attributes.fdv_usd ?? "0"),
+            );
+        },
 
-    id: "volume",
-  },
-  {
-    cell({ row }) {
-      return parseFloat(
-        row.original.geckoData?.data?.attributes.reserve_in_usd ?? "0",
-      ).toLocaleString("en-US", {
-        style: "currency",
-        currency: "USD",
-      });
+        header: "MCap",
+
+        id: "mCap",
+
+        sortingFn: "basic",
     },
 
-    header: "Liquidity",
+    {
+        cell({ row }) {
+            return (
+                (row.original.geckoData?.data?.attributes.transactions.h24.buys ?? 0) +
+                (row.original.geckoData?.data?.attributes.transactions.h24.sells ?? 0)
+            ).toLocaleString();
+        },
 
-    id: "liquidity",
-  },
+        header: "Txns",
 
-  {
-    cell({ row }) {
-      return formatTokenPrice(
-        parseFloat(
-          row.original.geckoData?.data?.attributes.market_cap_usd ?? "0",
-        ) ||
-          parseFloat(row.original.geckoData?.data?.attributes.fdv_usd ?? "0"),
-      );
+        id: "txns",
+
+        sortingFn: "basic",
     },
 
-    header: "MCap",
+    {
+        cell({ row }) {
+            return computeTokenAge(row.original.geckoData?.data?.attributes.pool_created_at ?? "");
+        },
 
-    id: "mCap",
+        header: "Age",
 
-    sortingFn: "basic",
-  },
+        id: "age",
 
-  {
-    cell({ row }) {
-      return (
-        (row.original.geckoData?.data?.attributes.transactions.h24.buys ?? 0) +
-        (row.original.geckoData?.data?.attributes.transactions.h24.sells ?? 0)
-      ).toLocaleString();
+        sortingFn: "basic",
     },
 
-    header: "Txns",
+    {
+        cell({ row }) {
+            // function handleTradeButton(event: React.MouseEvent<HTMLButtonElement>) {
+            //   event.stopPropagation();
+            //   console.log("trade");
+            // }
 
-    id: "txns",
+            function handleWatchlistButton(event: React.MouseEvent<HTMLButtonElement>) {
+                event.stopPropagation();
+                console.log("watchlist");
+            }
 
-    sortingFn: "basic",
-  },
+            function handleBagsButton(event: React.MouseEvent<HTMLButtonElement>) {
+                event.stopPropagation();
+                window.open(`https://bags.fm/${row.original.tokenMint}`, "_blank", "noopener,noreferrer");
+            }
 
-  {
-    cell({ row }) {
-      return computeTokenAge(
-        row.original.geckoData?.data?.attributes.pool_created_at ?? "",
-      );
-    },
-
-    header: "Age",
-
-    id: "age",
-
-    sortingFn: "basic",
-  },
-
-  {
-    cell({ row }) {
-      // function handleTradeButton(event: React.MouseEvent<HTMLButtonElement>) {
-      //   event.stopPropagation();
-      //   console.log("trade");
-      // }
-
-      function handleWatchlistButton(
-        event: React.MouseEvent<HTMLButtonElement>,
-      ) {
-        event.stopPropagation();
-        console.log("watchlist");
-      }
-
-      function handleBagsButton(event: React.MouseEvent<HTMLButtonElement>) {
-        event.stopPropagation();
-        window.open(
-          `https://bags.fm/${row.original.tokenMint}`,
-          "_blank",
-          "noopener,noreferrer",
-        );
-      }
-
-      return (
-        <div className="flex items-center justify-center gap-1 opacity-50 transition-opacity duration-100 group-hover:opacity-100">
-          {/* <button
+            return (
+                <div className="flex items-center justify-center gap-1 opacity-50 transition-opacity duration-100 group-hover:opacity-100">
+                    {/* <button
             className="hover:bg-muted rounded-md p-2"
             title="Trade"
             onClick={handleTradeButton}
@@ -212,33 +175,25 @@ export const TABLE_COLUMNS: Array<ColumnDef<MergedBagsTokenWithPool>> = [
             </i>
           </button> */}
 
-          <button
-            className="hover:bg-muted rounded-md p-2"
-            title="Add to watchlist"
-            onClick={handleWatchlistButton}
-          >
-            <i className="flex size-5 items-center justify-center">
-              <StarIcon />
-            </i>
-          </button>
+                    <button className="hover:bg-muted rounded-md p-2" title="Add to watchlist" onClick={handleWatchlistButton}>
+                        <i className="flex size-5 items-center justify-center">
+                            <StarIcon />
+                        </i>
+                    </button>
 
-          <button
-            className="hover:bg-muted rounded-md p-2"
-            title="View on Bags"
-            onClick={handleBagsButton}
-          >
-            <i className="flex size-5 items-center justify-center">
-              <ExternalLink />
-            </i>
-          </button>
-        </div>
-      );
+                    <button className="hover:bg-muted rounded-md p-2" title="View on Bags" onClick={handleBagsButton}>
+                        <i className="flex size-5 items-center justify-center">
+                            <ExternalLink />
+                        </i>
+                    </button>
+                </div>
+            );
+        },
+
+        enableSorting: false,
+
+        header: "Actions",
+
+        id: "actions",
     },
-
-    enableSorting: false,
-
-    header: "Actions",
-
-    id: "actions",
-  },
 ];

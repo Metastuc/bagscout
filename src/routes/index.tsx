@@ -7,6 +7,7 @@ import { getTickerQueryOptions } from "#/api/get-tickers.ts";
 import { getTokensServerFn } from "#/api/get-tokens.ts";
 import { useClientViewState } from "#/lib/store.ts";
 import { toTime } from "#/utils/time.ts";
+import { LandingNavigation } from "#/views/landing/components/navigation.tsx";
 import { DataTable } from "#/views/landing/components/table.tsx";
 
 const TokenDetailsModal = lazy(() =>
@@ -95,9 +96,7 @@ function RouteComponent() {
 
     return (
         <Fragment>
-            <nav className="h-20 lg:hidden">
-                <ul>{/* mobile nav here */}</ul>
-            </nav>
+            <LandingNavigation />
 
             <DataTable fetchNextPage={fetchNextPage} hasNextPage={hasNextPage} isFetchingNextPage={isFetchingNextPage} tokens={allTokens} />
 

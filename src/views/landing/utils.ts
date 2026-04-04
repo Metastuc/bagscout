@@ -9,7 +9,6 @@ export function computeDataMode(attributes?: GeckoPoolAttributes | null): GeckoD
     ];
 
     if (hasVolume || hasTransactions) return "PARTIAL";
-    if (hasTransactions) return "VOLUME_ONLY";
 
     return "NONE";
 }
@@ -30,6 +29,18 @@ export function computeTokenAge(iso: string): string {
 export function displaySafeValue(number: number | null, formatter: (_: number) => string): string {
     if (number == null || Number.isNaN(number)) return "—";
     return formatter(number);
+}
+
+export function formatDexName(dexId: string): string {
+    const map: Record<string, string> = {
+        "meteora-damm-v2": "Meteora DAMM v2",
+        "meteora-damm": "Meteora DAMM",
+        raydium: "Raydium",
+        "raydium-clmm": "Raydium CLMM",
+        orca: "Orca",
+        "orca-whirlpools": "Orca Whirlpools",
+    };
+    return map[dexId] ?? dexId;
 }
 
 export function formatPercentage(number: number): string {

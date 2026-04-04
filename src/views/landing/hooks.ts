@@ -12,7 +12,6 @@ interface GeckoPoolDataReturn {
     sellers: number;
     sellPercentage: number | null;
     sellVolume: number | null;
-    totalVolume: number;
 }
 
 export function useGeckoPoolData(attributes?: GeckoPoolAttributes | null): GeckoPoolDataReturn {
@@ -60,6 +59,5 @@ export function useGeckoPoolData(attributes?: GeckoPoolAttributes | null): Gecko
         sellers,
         sellPercentage,
         sellVolume,
-        totalVolume,
     };
 }

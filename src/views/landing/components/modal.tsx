@@ -28,7 +28,7 @@ export function TokenDetailsModal({ token, onClose }: TokenDetailsModalProps) {
 
     return (
         <Dialog open={!!token} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="h-200 sm:max-w-200">
+            <DialogContent className="h-[calc(100dvh-4rem)] sm:max-w-200 lg:h-200">
                 <DialogHeader>
                     <DialogTitle>
                         <div className="flex items-center gap-3">
@@ -51,26 +51,27 @@ export function TokenDetailsModal({ token, onClose }: TokenDetailsModalProps) {
                     </DialogDescription>
                 </DialogHeader>
 
-                <div className="no-scrollbar -mx-4 max-h-[80vh] overflow-y-auto px-4">
-                    <section className="my-4 space-y-2">
-                        {noPoolData || notIndexed ? (
-                            <div className="border-muted flex h-115 items-center justify-center rounded-md border bg-black">
-                                <span className="text-gray-400">
-                                    {noPoolData ? "No pool address — chart unavailable" : "Not yet indexed on GeckoTerminal"}
-                                </span>
-                            </div>
-                        ) : (
-                            <iframe
-                                allow="clipboard-write"
-                                allowFullScreen
-                                className="border-muted min-h-115 w-full rounded-md border bg-black"
-                                id="geckoterminal-embed"
-                                loading="lazy"
-                                src={chartIframeSrc}
-                                style={{ width: "100%", height: "100%" }}
-                                title="GeckoTerminal Embed"
-                            />
-                        )}
+                <div className="lg:no-scrollbar max-h-[80vh] overflow-y-auto">
+                    <section className="space-y-2">
+                        <div className="aspect-square lg:aspect-video">
+                            {noPoolData || notIndexed ? (
+                                <div className="border-muted flex size-full items-center justify-center rounded-md border bg-black">
+                                    <span className="text-gray-400">
+                                        {noPoolData ? "No pool address — chart unavailable" : "Not yet indexed on GeckoTerminal"}
+                                    </span>
+                                </div>
+                            ) : (
+                                <iframe
+                                    allow="clipboard-write"
+                                    allowFullScreen
+                                    className="border-muted size-full rounded-md border bg-black"
+                                    id="geckoterminal-embed"
+                                    loading="lazy"
+                                    src={chartIframeSrc}
+                                    title="GeckoTerminal Embed"
+                                />
+                            )}
+                        </div>
 
                         {chartPoolAddress ? (
                             <div className="text-xs text-gray-500">

@@ -103,7 +103,7 @@ export const DataTable = memo(function ({ fetchNextPage, tokens, hasNextPage, is
                                     <div
                                         key={cell.id}
                                         className={cn(
-                                            "px-3 py-2 flex items-center",
+                                            "px-3 py-2 flex items-center text-sm lg:text-base",
                                             shouldAlignRight(cell.column.id) ? "justify-end" : "justify-start",
                                             cell.column.id === "token" &&
                                                 "sticky left-0 lg:left-15 bg-black z-20 border-r border-border shadow-[2px_0_6px_rgba(0,0,0,0.2)]",
@@ -118,15 +118,14 @@ export const DataTable = memo(function ({ fetchNextPage, tokens, hasNextPage, is
                     ))}
                 </aside>
 
-                <div ref={ref} className="sticky left-0 flex flex-col items-center justify-center gap-2 py-5">
+                <div ref={ref} className="sticky left-0 flex flex-col items-center justify-center gap-2 p-2">
                     {hasNextPage ? (
                         <Fragment>
-                            <div className="border-muted border-t-foreground h-5 w-5 animate-spin rounded-full border-2" />
-                            <span className="text-muted-foreground text-sm">Loading more tokens...</span>
+                            <i className="border-muted border-t-foreground size-5 animate-spin rounded-full border-2" />
                         </Fragment>
                     ) : (
                         <div className="flex flex-col items-center gap-2 text-center">
-                            <span className="text-muted-foreground text-sm">You’ve reached the end 👀</span>
+                            <span className="text-muted-foreground text-sm italic">This is the end 🎶</span>
                         </div>
                     )}
                 </div>

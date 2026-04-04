@@ -2,7 +2,7 @@ export const GRID_COLUMNS = `
 3.75rem        
 minmax(12.5rem, 1fr)  
 8.75rem
-6.25rem
+8.25rem
 8.75rem
 8.75rem
 8.75rem

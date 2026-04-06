@@ -13,8 +13,6 @@ export function TopNavBar() {
                 </aside>
 
                 <ConnectWalletButton />
-
-                {/* <button onClick={() => alert("world")}>hello</button> */}
             </div>
         </section>
     );

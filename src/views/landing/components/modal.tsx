@@ -31,6 +31,7 @@ export function TokenDetailsModal({ token, onClose }: TokenDetailsModalProps) {
                             </div>
                         </div>
                     </DialogTitle>
+
                     <DialogDescription>
                         {noPoolData ? (
                             "Not yet available on GeckoTerminal"

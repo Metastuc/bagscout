@@ -1,5 +1,7 @@
+import { TanStackDevtools } from "@tanstack/react-devtools";
 import type { QueryClient } from "@tanstack/react-query";
 import { HeadContent, Scripts, createRootRouteWithContext } from "@tanstack/react-router";
+import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 
 import { ShellLayout } from "#/components/layout/shell.tsx";
 
@@ -62,7 +64,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
                 <ApplicationContextProvider>
                     <ShellLayout>{children}</ShellLayout>
                 </ApplicationContextProvider>
-                {/* <TanStackDevtools
+                <TanStackDevtools
                     config={{
                         position: "bottom-right",
                     }}
@@ -72,7 +74,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
                             render: <TanStackRouterDevtoolsPanel />,
                         },
                     ]}
-                /> */}
+                />
                 <Scripts />
             </body>
         </html>

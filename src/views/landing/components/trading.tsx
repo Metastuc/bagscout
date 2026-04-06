@@ -1,5 +1,6 @@
 import { Fragment, useState, type ChangeEvent } from "react";
 
+import { useClientViewState } from "#/lib/store.ts";
 import { cn } from "#/lib/utils.ts";
 
 import { safeNumber } from "../utils";
@@ -7,14 +8,15 @@ import { safeNumber } from "../utils";
 const SOL_USD = 80.2;
 
 export function ModalTradingPanel({ token, geckoData }: { token: MergedBagsTokenWithPool; geckoData: GeckoPoolAttributes | undefined }) {
+    const isAuthenticated = useClientViewState((state) => state.isAuthenticated);
+    const priceUsd = safeNumber(geckoData?.base_token_price_usd) ?? 0;
+
     const [tradeState, setTradeState] = useState<TradingPanelState>(() => ({
         buyAmount: "",
         sellAmount: "",
         slippage: 1,
         tab: "buy",
     }));
-
-    const priceUsd = safeNumber(geckoData?.base_token_price_usd) ?? 0;
 
     const [buyEstimate, sellEstimate] = [
         (function () {
@@ -40,6 +42,8 @@ export function ModalTradingPanel({ token, geckoData }: { token: MergedBagsToken
         [25, 50, 75, 100],
         [0.5, 1, 2, 5],
     ];
+
+    function handleTransaction() {}
 
     return (
         <section className="space-y-3">
@@ -152,15 +156,16 @@ export function ModalTradingPanel({ token, geckoData }: { token: MergedBagsToken
             </div>
 
             <button
-                disabled
+                disabled={!isAuthenticated}
                 className={cn(
-                    "w-full rounded-md py-2.5 text-sm font-medium text-white opacity-50 cursor-not-allowed",
+                    "w-full rounded-md py-2.5 text-sm font-medium text-white transition-colors duration-100",
                     tradeState.tab === "buy" ? "bg-green-600" : "bg-red-600",
+                    isAuthenticated ? "hover:bg-green-700 cursor-pointer" : "opacity-50 cursor-not-allowed",
                 )}
+                onClick={handleTransaction}
             >
-                Connect wallet to {tradeState.tab}
+                {!isAuthenticated ? "Connect wallet to trade" : tradeState.tab === "buy" ? "Buy now" : "Sell now"}
             </button>
-            <p className="text-muted-foreground text-center text-xs">Wallet connection coming soon</p>
         </section>
     );
 }

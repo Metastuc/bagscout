@@ -12,5 +12,6 @@ export const SERVER_ENV = z
         PRIVY_APP_KEY: z.string().transform((value) => value.replace(/\\n/g, "\n")),
         PRIVY_APP_SECRET: z.string(),
         REDIS_URL: z.string(),
+        SOLANA_RPC_URL: z.string(),
     })
     .parse(process.env);

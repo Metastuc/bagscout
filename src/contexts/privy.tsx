@@ -1,5 +1,6 @@
 import { PrivyProvider } from "@privy-io/react-auth";
 import { toSolanaWalletConnectors } from "@privy-io/react-auth/solana";
+import { createSolanaRpc, createSolanaRpcSubscriptions } from "@solana/kit";
 
 import { CLIENT_ENV } from "#/env/client-env.ts";
 
@@ -18,6 +19,14 @@ export function PrivyContext({ children }: { children: React.ReactNode }) {
                 externalWallets: {
                     solana: {
                         connectors: toSolanaWalletConnectors(),
+                    },
+                },
+                solana: {
+                    rpcs: {
+                        "solana:mainnet": {
+                            rpc: createSolanaRpc(CLIENT_ENV.VITE_SOLANA_RPC_URL),
+                            rpcSubscriptions: createSolanaRpcSubscriptions(CLIENT_ENV.VITE_SOLANA_RPC_URL.replace("https", "wss")),
+                        },
                     },
                 },
             }}

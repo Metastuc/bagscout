@@ -61,3 +61,5 @@ export function useGeckoPoolData(attributes?: GeckoPoolAttributes | null): Gecko
         sellVolume,
     };
 }
+
+export function useSwap() {}

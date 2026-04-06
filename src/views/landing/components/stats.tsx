@@ -33,7 +33,7 @@ export function StatisticsPanel({ token, geckoData, completePoolData }: Statisti
                 </div>
             </div>
 
-            {(token.twitter || token.website) && (
+            {token.twitter || token.website ? (
                 <div className="flex gap-2">
                     {token.twitter ? (
                         <a
@@ -57,7 +57,7 @@ export function StatisticsPanel({ token, geckoData, completePoolData }: Statisti
                         </a>
                     ) : null}
                 </div>
-            )}
+            ) : null}
 
             <div className="space-y-0">
                 {[
@@ -128,15 +128,18 @@ export function StatisticsPanel({ token, geckoData, completePoolData }: Statisti
                                     Buy {buyPercentage?.toFixed(0)}%
                                     <span className="lg:hidden"> · {mode === "FULL" ? formatTokenPrice(buyVolume!) : `${buys} txns`}</span>
                                 </span>
+
                                 <span className="text-red-400">
                                     Sell {sellPercentage?.toFixed(0)}%
                                     <span className="lg:hidden"> · {mode === "FULL" ? formatTokenPrice(sellVolume!) : `${sells} txns`}</span>
                                 </span>
                             </div>
+
                             <div className="bg-muted flex h-2 overflow-hidden rounded-full">
                                 <div className="bg-green-500 transition-all" style={{ width: `${buyPercentage}%` }} />
                                 <div className="bg-red-500 transition-all" style={{ width: `${sellPercentage}%` }} />
                             </div>
+
                             {mode === "FULL" ? (
                                 <p className="text-muted-foreground">
                                     Net buy volume:{" "}

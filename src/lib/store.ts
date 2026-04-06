@@ -4,6 +4,7 @@ import { immer } from "zustand/middleware/immer";
 interface AppStateValues {
     activeTab: DiscoverTabs;
     filters: Record<string, unknown>;
+    isAuthenticated: boolean;
     tickerTokens: Array<MergedBagsTokenWithPool>;
 }
 
@@ -12,6 +13,7 @@ interface AppStateActions {
     readShareableLink: () => void;
     setActiveTab: (tab: AppStateValues["activeTab"]) => void;
     setFilters: (filters: AppStateValues["filters"]) => void;
+    setIsAuthenticated: (isAuthenticated: boolean) => void;
     setTickerTokens: (tokens: Array<MergedBagsTokenWithPool>) => void;
 }
 
@@ -21,6 +23,7 @@ export const useClientViewState = create<AppState>()(
     immer((set, get) => ({
         activeTab: "trending",
         filters: {},
+        isAuthenticated: false,
         tickerTokens: [],
 
         createShareableLink() {
@@ -40,6 +43,8 @@ export const useClientViewState = create<AppState>()(
         setActiveTab: (tab) => set({ activeTab: tab }),
 
         setFilters: (filters) => set({ filters }),
+
+        setIsAuthenticated: (isAuthenticated) => set({ isAuthenticated }),
 
         setTickerTokens: (tokens) => set({ tickerTokens: tokens }),
     })),

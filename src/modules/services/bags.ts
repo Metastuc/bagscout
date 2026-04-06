@@ -1,4 +1,4 @@
-import { SERVER_ENV } from "../../../env";
+import { SERVER_ENV } from "#/env/server-env.ts";
 
 const options = {
     method: "GET",

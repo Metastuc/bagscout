@@ -1,6 +1,6 @@
 import { defineConfig } from "drizzle-kit";
 
-import { SERVER_ENV } from "./env";
+import { SERVER_ENV } from "#/env/server-env.ts";
 
 export default defineConfig({
     out: "./drizzle",

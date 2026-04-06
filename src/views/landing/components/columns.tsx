@@ -1,6 +1,7 @@
 import { StarIcon } from "@phosphor-icons/react";
 import type { ColumnDef } from "@tanstack/react-table";
 import { ExternalLink } from "lucide-react";
+import type { MouseEvent } from "react";
 
 import { SafeImage } from "#/components/safe-image.tsx";
 import { cn } from "#/lib/utils.ts";
@@ -149,12 +150,12 @@ export const TABLE_COLUMNS: Array<ColumnDef<MergedBagsTokenWithPool>> = [
 
     {
         cell({ row }) {
-            function handleWatchlistButton(event: React.MouseEvent<HTMLButtonElement>) {
+            function handleWatchlistButton(event: MouseEvent<HTMLButtonElement>) {
                 event.stopPropagation();
                 console.log("watchlist");
             }
 
-            function handleBagsButton(event: React.MouseEvent<HTMLButtonElement>) {
+            function handleBagsButton(event: MouseEvent<HTMLButtonElement>) {
                 event.stopPropagation();
                 window.open(`https://bags.fm/${row.original.tokenMint}`, "_blank", "noopener,noreferrer");
             }

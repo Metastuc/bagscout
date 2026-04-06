@@ -42,7 +42,7 @@ export function ModalTradingPanel({ token, geckoData }: { token: MergedBagsToken
     ];
 
     return (
-        <div className="space-y-3">
+        <section className="space-y-3">
             <div className="border-border flex overflow-hidden rounded-md border">
                 <button
                     onClick={() => setTradeState((state) => ({ ...state, tab: "buy" }))}
@@ -53,6 +53,7 @@ export function ModalTradingPanel({ token, geckoData }: { token: MergedBagsToken
                 >
                     ↑ Buy
                 </button>
+
                 <button
                     onClick={() => setTradeState((state) => ({ ...state, tab: "sell" }))}
                     className={cn(
@@ -80,6 +81,7 @@ export function ModalTradingPanel({ token, geckoData }: { token: MergedBagsToken
                         />
                         <span className="text-muted-foreground absolute top-1/2 right-3 -translate-y-1/2 text-xs">SOL</span>
                     </div>
+
                     <div className="flex gap-1.5">
                         {buyPresets.map((percent) => (
                             <button
@@ -93,7 +95,7 @@ export function ModalTradingPanel({ token, geckoData }: { token: MergedBagsToken
                     </div>
                 </Fragment>
             ) : (
-                <>
+                <Fragment>
                     <div className="relative">
                         <input
                             type="number"
@@ -107,6 +109,7 @@ export function ModalTradingPanel({ token, geckoData }: { token: MergedBagsToken
                         />
                         <span className="text-muted-foreground absolute top-1/2 right-3 -translate-y-1/2 text-xs">{token.symbol}</span>
                     </div>
+
                     <div className="flex gap-1.5">
                         {sellPresets.map((percent) => (
                             <button
@@ -118,7 +121,7 @@ export function ModalTradingPanel({ token, geckoData }: { token: MergedBagsToken
                             </button>
                         ))}
                     </div>
-                </>
+                </Fragment>
             )}
 
             <div className="bg-muted text-muted-foreground flex justify-between rounded-md px-3 py-2 text-xs">
@@ -158,6 +161,6 @@ export function ModalTradingPanel({ token, geckoData }: { token: MergedBagsToken
                 Connect wallet to {tradeState.tab}
             </button>
             <p className="text-muted-foreground text-center text-xs">Wallet connection coming soon</p>
-        </div>
+        </section>
     );
 }

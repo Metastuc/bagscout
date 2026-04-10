@@ -4,8 +4,8 @@ import { toTime } from "#/utils/time.ts";
 import { withDependencies } from "..";
 
 const CACHE_TTL = toTime({
-    unit: "days",
-    value: 7,
+    unit: "minutes",
+    value: 30,
     output: "seconds",
 }) as number;
 
@@ -20,12 +20,12 @@ export const cacheUtils = {
     async getAllTokens(): Promise<Array<MergedBagsTokenWithPool>> {
         try {
             const keys = await redis.smembers(ALL_TOKENS_KEY);
-            if (keys.length === 0) return withDependencies(async (deps) => await deps.dbTokens.getAllTokens());
+            if (keys.length === 0) return withDependencies(async (deps) => await deps.tokensRepository.getAllTokens());
 
             const values = await redis.mget(keys.map(TOKEN_KEY));
             return values.filter(Boolean).map((value) => JSON.parse(value as string) as MergedBagsTokenWithPool);
         } catch {
-            return withDependencies(async (deps) => await deps.dbTokens.getAllTokens());
+            return withDependencies(async (deps) => await deps.tokensRepository.getAllTokens());
         }
     },
 
@@ -34,14 +34,14 @@ export const cacheUtils = {
             const raw = await redis.get(TOKEN_KEY(poolAddress));
             return raw
                 ? (JSON.parse(raw) as MergedBagsTokenWithPool)
-                : withDependencies(async (deps) => await deps.dbTokens.getTokenByPoolAddress(poolAddress));
+                : withDependencies(async (deps) => await deps.tokensRepository.getTokenByPoolAddress(poolAddress));
         } catch {
-            return withDependencies(async (deps) => await deps.dbTokens.getTokenByPoolAddress(poolAddress));
+            return withDependencies(async (deps) => await deps.tokensRepository.getTokenByPoolAddress(poolAddress));
         }
     },
 
     async setToken(token: MergedBagsTokenWithPool) {
-        await withDependencies(async (deps) => await deps.dbTokens.upsertTokens([token]));
+        await withDependencies(async (deps) => await deps.tokensRepository.upsertTokens([token]));
 
         try {
             await redis.set(TOKEN_KEY(token.poolAddress as string), JSON.stringify({ ...token, lastFetched: Date.now() }), "EX", CACHE_TTL);
@@ -57,7 +57,7 @@ export const cacheUtils = {
     },
 
     async setMultipleTokens(tokens: Array<MergedBagsTokenWithPool>) {
-        await withDependencies(async (deps) => await deps.dbTokens.upsertTokens(tokens));
+        await withDependencies(async (deps) => await deps.tokensRepository.upsertTokens(tokens));
 
         try {
             const pipeline = redis.pipeline();
@@ -85,7 +85,7 @@ export const cacheUtils = {
             return;
         }
 
-        await withDependencies(async (deps) => await deps.dbTokens.updateGeckoData(poolAddress, geckoData));
+        await withDependencies(async (deps) => await deps.tokensRepository.updateGeckoData(poolAddress, geckoData));
 
         try {
             const volumeIn24H = Number(geckoData?.data?.attributes?.volume_usd?.h24 ?? 0);
@@ -108,7 +108,7 @@ export const cacheUtils = {
     async getTopTokensByVolume(limit: number): Promise<Array<MergedBagsTokenWithPool>> {
         try {
             const topPoolAddresses = await redis.zrevrange(TOKEN_VOLUME_KEY, 0, limit - 1);
-            if (topPoolAddresses.length === 0) return withDependencies(async (deps) => await deps.dbTokens.getTopTokensByVolume(limit));
+            if (topPoolAddresses.length === 0) return withDependencies(async (deps) => await deps.tokensRepository.getTopTokensByVolume(limit));
 
             const pipeline = redis.pipeline();
             for (const poolAddress of topPoolAddresses) {
@@ -120,7 +120,7 @@ export const cacheUtils = {
                 .map(([_error, value]) => (value ? (JSON.parse(value as string) as MergedBagsTokenWithPool) : null))
                 .filter((token): token is MergedBagsTokenWithPool => token !== null);
         } catch {
-            return withDependencies(async (deps) => await deps.dbTokens.getTopTokensByVolume(limit));
+            return withDependencies(async (deps) => await deps.tokensRepository.getTopTokensByVolume(limit));
         }
     },
 

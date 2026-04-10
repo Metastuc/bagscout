@@ -1,6 +1,7 @@
 // ─── Merged shape stored per token ───────────────────────────────────────
 
 interface MergedBagsTokenWithPool extends BagsTokenWithPool {
+    lastFetched?: number;
     geckoData?: {
         data: GeckoPoolData | null; // null = pool exists but not indexed on Gecko
         fetchedAt: number;

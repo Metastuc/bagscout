@@ -1,0 +1,300 @@
+{
+  "id": "f3fb455e-7f06-434d-a361-14da0da7c373",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.tokens": {
+      "name": "tokens",
+      "schema": "",
+      "columns": {
+        "token_mint": {
+          "name": "token_mint",
+          "type": "varchar",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "symbol": {
+          "name": "symbol",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "image": {
+          "name": "image",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "twitter": {
+          "name": "twitter",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "website": {
+          "name": "website",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "uri": {
+          "name": "uri",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "launch_signature": {
+          "name": "launch_signature",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "account_keys": {
+          "name": "account_keys",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dbc_pool_key": {
+          "name": "dbc_pool_key",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "dbc_config_key": {
+          "name": "dbc_config_key",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "damm_v2_pool_key": {
+          "name": "damm_v2_pool_key",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pool_address": {
+          "name": "pool_address",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "volume_h24": {
+          "name": "volume_h24",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "price_change_h24": {
+          "name": "price_change_h24",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "reserve_in_usd": {
+          "name": "reserve_in_usd",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "gecko_indexed": {
+          "name": "gecko_indexed",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "gecko_fetched_at": {
+          "name": "gecko_fetched_at",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "gecko_attributes": {
+          "name": "gecko_attributes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "gecko_dex_id": {
+          "name": "gecko_dex_id",
+          "type": "varchar",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "idx_pool_address": {
+          "name": "idx_pool_address",
+          "columns": [
+            {
+              "expression": "pool_address",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_volume_h24": {
+          "name": "idx_volume_h24",
+          "columns": [
+            {
+              "expression": "volume_h24",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_status": {
+          "name": "idx_status",
+          "columns": [
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_symbol": {
+          "name": "idx_symbol",
+          "columns": [
+            {
+              "expression": "symbol",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_name": {
+          "name": "idx_name",
+          "columns": [
+            {
+              "expression": "name",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_price_change_h24": {
+          "name": "idx_price_change_h24",
+          "columns": [
+            {
+              "expression": "price_change_h24",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_reserve_in_usd": {
+          "name": "idx_reserve_in_usd",
+          "columns": [
+            {
+              "expression": "reserve_in_usd",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "idx_created_at": {
+          "name": "idx_created_at",
+          "columns": [
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

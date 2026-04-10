@@ -10,6 +10,7 @@ const SOL_USD = 80.2;
 export function ModalTradingPanel({ token, geckoData }: { token: MergedBagsTokenWithPool; geckoData: GeckoPoolAttributes | undefined }) {
     const isAuthenticated = useClientViewState((state) => state.isAuthenticated);
     const priceUsd = safeNumber(geckoData?.base_token_price_usd) ?? 0;
+    // const { error, fetchQuote, quote, swap, reset, status, txSignature } = useSwap();
 
     const [tradeState, setTradeState] = useState<TradingPanelState>(() => ({
         buyAmount: "",

@@ -124,15 +124,9 @@ export function StatisticsPanel({ token, geckoData, completePoolData }: Statisti
                     {hasTrades ? (
                         <div className="space-y-1.5 text-xs">
                             <div className="flex justify-between">
-                                <span className="text-green-400">
-                                    Buy {buyPercentage?.toFixed(0)}%
-                                    <span className="lg:hidden"> · {mode === "FULL" ? formatTokenPrice(buyVolume!) : `${buys} txns`}</span>
-                                </span>
+                                <span className="text-green-400">Buy {buyPercentage?.toFixed(0)}%</span>
 
-                                <span className="text-red-400">
-                                    Sell {sellPercentage?.toFixed(0)}%
-                                    <span className="lg:hidden"> · {mode === "FULL" ? formatTokenPrice(sellVolume!) : `${sells} txns`}</span>
-                                </span>
+                                <span className="text-red-400">Sell {sellPercentage?.toFixed(0)}%</span>
                             </div>
 
                             <div className="bg-muted flex h-2 overflow-hidden rounded-full">

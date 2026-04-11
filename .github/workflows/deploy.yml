@@ -1,0 +1,28 @@
+name: Deploy from main
+
+on:
+    workflow_dispatch:
+        inputs:
+            target:
+                description: "What do you want to deploy?"
+                required: true
+                type: choice
+                options:
+                    - app
+                    - workers
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout main
+              uses: actions/checkout@v4
+
+            - name: Deploy App
+              if: ${{ inputs.target == 'app' }}
+              uses: ./.github/workflows/app.yml
+
+            - name: Deploy Workers
+              if: ${{ inputs.target == 'workers' }}
+              uses: ./.github/workflows/workers.yml

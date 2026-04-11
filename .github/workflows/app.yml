@@ -1,0 +1,22 @@
+name: Deploy App
+
+on:
+    workflow_call:
+
+jobs:
+    deploy-app:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Push to application branch
+              run: |
+                  git config user.name "github-actions"
+                  git config user.email "actions@github.com"
+
+                  git fetch origin application || true
+                  git checkout -B application
+
+                  git push origin application --force

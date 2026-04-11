@@ -1,16 +1,22 @@
-import { tokensRepository } from "#/db/repository.ts";
+import { createTokensRepository } from "#/db/repository.ts";
 import { appLogger } from "#/utils/log.ts";
 
 import { db } from "../db";
 import { redis } from "./core/redis";
-import { cacheUtils } from "./utils/cache";
+import { createTokenService } from "./factories/token";
+
+const coreDependencies: CoreDependencies = { db, logger: appLogger, redis };
+
+const repositories: Repositories = { tokensRepository: createTokensRepository(coreDependencies) };
+
+const services = {
+    tokensService: createTokenService({ ...coreDependencies, ...repositories }),
+};
 
 const appDependencies: AppDependencies = {
-    cache: cacheUtils,
-    db: db,
-    logger: appLogger,
-    redis: redis,
-    tokensRepository: tokensRepository,
+    ...coreDependencies,
+    ...repositories,
+    ...services,
 };
 
 export const withDependencies = async <T>(fn: (dependencies: AppDependencies) => Promise<T>): Promise<T> => fn(appDependencies);

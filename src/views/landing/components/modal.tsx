@@ -2,7 +2,7 @@ import { SafeImage } from "#/components/safe-image.tsx";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "#/components/ui/dialog.tsx";
 
 import { GeckoTokenChart } from "./chart";
-import { StatisticsPanel } from "./stats";
+import { StatisticsPanel } from "./statistics";
 import { StatusTag } from "./status";
 
 interface TokenDetailsModalProps {

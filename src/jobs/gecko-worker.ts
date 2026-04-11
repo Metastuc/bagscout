@@ -43,7 +43,7 @@ new Worker(
 
             await withDependencies(async (deps) => {
                 for (const poolAddress of poolAddresses) {
-                    const existing = await deps.cache.getToken(poolAddress);
+                    const existing = await deps.tokensService.getToken(poolAddress);
                     const poolData = poolsMap.get(poolAddress) ?? null;
 
                     if (existing?.geckoData?.fetchedAt) {
@@ -61,13 +61,13 @@ new Worker(
                         }
                     }
 
-                    await deps.cache.updateTokenCache(poolAddress, {
+                    await deps.tokensService.updateToken(poolAddress, {
                         data: poolData,
                         fetchedAt: Date.now(),
                     });
                 }
 
-                await deps.cache.refreshTickerTokens();
+                await deps.tokensService.refreshTickerTokens();
             });
 
             console.log("GECKO BATCH RESULT", {
@@ -77,10 +77,7 @@ new Worker(
             });
         } catch (error) {
             await withDependencies(async (deps) => {
-                deps.logger.error({
-                    msg: (error as Error).message,
-                    data: { stack: (error as Error).stack },
-                });
+                deps.logger.error({ msg: (error as Error).message, data: { stack: (error as Error).stack } });
             });
             return null;
         }
@@ -89,11 +86,7 @@ new Worker(
         connection: redis,
         limiter: {
             max: 1,
-            duration: toTime({
-                unit: "seconds",
-                value: 15,
-                output: "milliseconds",
-            }) as number,
+            duration: toTime({ unit: "seconds", value: 15, output: "milliseconds" }) as number,
         },
     },
 );

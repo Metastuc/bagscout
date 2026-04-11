@@ -15,7 +15,7 @@ export const getTokensServerFn = createServerFn({ method: "GET" })
         async ({ data: { limit, tab, cursor } }) =>
             await withDependencies(async (deps) => {
                 try {
-                    const tokens = await deps.cache.getAllTokens();
+                    const tokens = await deps.tokensService.getAllTokens();
 
                     if (!tokens.length) {
                         deps.logger.warn({ msg: "Cache miss - worker not ready yet" });

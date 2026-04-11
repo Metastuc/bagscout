@@ -32,7 +32,7 @@ new Worker(
             ts: Date.now(),
         });
 
-        const existingTokens = await withDependencies((deps) => deps.cache.getAllTokens());
+        const existingTokens = await withDependencies((deps) => deps.tokensRepository.getAllTokens());
         const existingMap = new Map(existingTokens?.map((token) => [token.poolAddress, token]));
 
         const [tokens, pools] = await Promise.all([
@@ -48,7 +48,7 @@ new Worker(
                 return cached?.geckoData ? { ...token, geckoData: cached.geckoData } : token;
             });
 
-            await deps.cache.setMultipleTokens(mergeWithCache);
+            await deps.tokensService.setMultipleTokens(mergeWithCache);
         });
 
         const poolAddresses = merged.map((token) => token.poolAddress).filter(Boolean) as Array<string>;

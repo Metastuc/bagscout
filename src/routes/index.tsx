@@ -60,17 +60,9 @@ function RouteComponent() {
         getNextPageParam: (lastPage) => lastPage.nextCursor,
         initialPageParam: undefined,
         placeholderData: (previous) => previous,
-        refetchInterval: toTime({
-            unit: "seconds",
-            value: 30,
-            output: "milliseconds",
-        }) as number,
+        refetchInterval: toTime({ unit: "seconds", value: 30, output: "milliseconds" }) as number,
         refetchIntervalInBackground: true,
-        staleTime: toTime({
-            unit: "seconds",
-            value: 20,
-            output: "milliseconds",
-        }) as number,
+        staleTime: toTime({ unit: "seconds", value: 20, output: "milliseconds" }) as number,
     });
 
     const allTokens = useMemo(() => data?.pages.flatMap((page) => page.tokens) ?? [], [data]);

@@ -7,7 +7,7 @@ import { withDependencies } from "../modules";
 
 const getTickersServerFn = createServerFn({ method: "GET" }).handler(async () => {
     return await withDependencies(async (deps) => {
-        const tokens = await deps.cache.getTickerTokens();
+        const tokens = await deps.tokensService.getTickerTokens();
         if (!tokens.length) return { tokens: [] };
 
         return { tokens };

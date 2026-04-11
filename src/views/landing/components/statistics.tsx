@@ -2,7 +2,7 @@ import { cn } from "#/lib/utils.ts";
 
 import { useGeckoPoolData } from "../hooks";
 import { computeTokenAge, displaySafeValue, formatDexName, formatPercentage, formatPriceToUSD, formatTokenPrice, safeNumber } from "../utils";
-import { CopyButton } from "./copy";
+import { CopyButton } from "./button";
 
 interface StatisticsPanelProps {
     token: MergedBagsTokenWithPool;

@@ -1,6 +1,5 @@
 import { desc, eq, sql } from "drizzle-orm";
 
-import { db } from ".";
 import { tokensTable, type NewTokenRow, type TokenRow } from "./schema";
 
 function toMerged(row: TokenRow): MergedBagsTokenWithPool {
@@ -46,7 +45,7 @@ function toMerged(row: TokenRow): MergedBagsTokenWithPool {
     };
 }
 
-export function fromMerged(token: MergedBagsTokenWithPool): NewTokenRow {
+function fromMerged(token: MergedBagsTokenWithPool): NewTokenRow {
     const attributes = token.geckoData?.data?.attributes;
 
     return {
@@ -78,61 +77,63 @@ export function fromMerged(token: MergedBagsTokenWithPool): NewTokenRow {
     };
 }
 
-export const tokensRepository = {
-    async getAllTokens(): Promise<Array<MergedBagsTokenWithPool>> {
-        const rows = await db.select().from(tokensTable).orderBy(desc(tokensTable.volumeH24));
-        return rows.map(toMerged);
-    },
+export function createTokensRepository(deps: CoreDependencies) {
+    return {
+        async getAllTokens(): Promise<Array<MergedBagsTokenWithPool>> {
+            const rows = await deps.db.select().from(tokensTable).orderBy(desc(tokensTable.volumeH24));
+            return rows.map(toMerged);
+        },
 
-    async getTokenByPoolAddress(poolAddress: string): Promise<MergedBagsTokenWithPool | null> {
-        const rows = await db.select().from(tokensTable).where(eq(tokensTable.poolAddress, poolAddress)).limit(1);
-        return rows[0] ? toMerged(rows[0]) : null;
-    },
+        async getTokenByPoolAddress(poolAddress: string): Promise<MergedBagsTokenWithPool | null> {
+            const rows = await deps.db.select().from(tokensTable).where(eq(tokensTable.poolAddress, poolAddress)).limit(1);
+            return rows[0] ? toMerged(rows[0]) : null;
+        },
 
-    async getTopTokensByVolume(limit: number): Promise<Array<MergedBagsTokenWithPool>> {
-        const rows = await db
-            .select()
-            .from(tokensTable)
-            .where(sql`${tokensTable.volumeH24} > 0`)
-            .orderBy(desc(tokensTable.volumeH24))
-            .limit(limit);
-        return rows.map(toMerged);
-    },
+        async getTopTokensByVolume(limit: number): Promise<Array<MergedBagsTokenWithPool>> {
+            const rows = await deps.db
+                .select()
+                .from(tokensTable)
+                .where(sql`${tokensTable.volumeH24} > 0`)
+                .orderBy(desc(tokensTable.volumeH24))
+                .limit(limit);
+            return rows.map(toMerged);
+        },
 
-    async upsertTokens(tokens: Array<MergedBagsTokenWithPool>): Promise<void> {
-        const newRows = tokens.map(fromMerged);
-        const chunkSize = 50;
+        async upsertTokens(tokens: Array<MergedBagsTokenWithPool>): Promise<void> {
+            const newRows = tokens.map(fromMerged);
+            const chunkSize = 50;
 
-        for (let index = 0; index < newRows.length; index += chunkSize) {
-            await db
-                .insert(tokensTable)
-                .values(newRows.slice(index, index + chunkSize))
-                .onConflictDoUpdate({
-                    target: tokensTable.tokenMint,
-                    set: {
-                        status: sql`excluded.status`,
-                        image: sql`excluded.image`,
-                        updatedAt: sql`excluded.updated_at`,
-                    },
-                });
-        }
-    },
+            for (let index = 0; index < newRows.length; index += chunkSize) {
+                await deps.db
+                    .insert(tokensTable)
+                    .values(newRows.slice(index, index + chunkSize))
+                    .onConflictDoUpdate({
+                        target: tokensTable.tokenMint,
+                        set: {
+                            status: sql`excluded.status`,
+                            image: sql`excluded.image`,
+                            updatedAt: sql`excluded.updated_at`,
+                        },
+                    });
+            }
+        },
 
-    async updateGeckoData(poolAddress: string, geckoData: MergedBagsTokenWithPool["geckoData"]): Promise<void> {
-        const attributes = geckoData?.data?.attributes;
+        async updateGeckoData(poolAddress: string, geckoData: MergedBagsTokenWithPool["geckoData"]): Promise<void> {
+            const attributes = geckoData?.data?.attributes;
 
-        await db
-            .update(tokensTable)
-            .set({
-                geckoIndexed: !!attributes,
-                geckoFetchedAt: geckoData?.fetchedAt,
-                geckoAttributes: attributes ? JSON.stringify(attributes) : null,
-                geckoDexId: geckoData?.data?.relationships?.dex?.data?.id,
-                volumeH24: attributes ? parseFloat(attributes.volume_usd.h24) : undefined,
-                priceChangeH24: attributes ? parseFloat(attributes.price_change_percentage.h24) : undefined,
-                reserveInUsd: attributes ? parseFloat(attributes.reserve_in_usd) : undefined,
-                updatedAt: new Date(),
-            })
-            .where(eq(tokensTable.poolAddress, poolAddress));
-    },
-};
+            await deps.db
+                .update(tokensTable)
+                .set({
+                    geckoIndexed: !!attributes,
+                    geckoFetchedAt: geckoData?.fetchedAt,
+                    geckoAttributes: attributes ? JSON.stringify(attributes) : null,
+                    geckoDexId: geckoData?.data?.relationships?.dex?.data?.id,
+                    volumeH24: attributes ? parseFloat(attributes.volume_usd.h24) : undefined,
+                    priceChangeH24: attributes ? parseFloat(attributes.price_change_percentage.h24) : undefined,
+                    reserveInUsd: attributes ? parseFloat(attributes.reserve_in_usd) : undefined,
+                    updatedAt: new Date(),
+                })
+                .where(eq(tokensTable.poolAddress, poolAddress));
+        },
+    };
+}

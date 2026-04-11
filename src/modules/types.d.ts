@@ -1,22 +1,25 @@
-import { tokensRepository } from "#/db/repository.ts";
+import { createTokensRepository } from "#/db/repository.ts";
 import type { appLogger } from "#/utils/log.ts";
 
 import { db } from "../db";
 import { redis } from "./core/redis";
-import { cacheUtils } from "./utils/cache";
-
-interface ForeignDependencies {
-    db: typeof db;
-    redis: typeof redis;
-}
-
-interface LocalDependencies {
-    cache: typeof cacheUtils;
-    tokensRepository: typeof tokensRepository;
-    logger: typeof appLogger;
-}
+import { createTokenService } from "./factories/token";
 
 declare global {
-    type AppDependencies = LocalDependencies & ForeignDependencies;
+    interface CoreDependencies {
+        db: typeof db;
+        logger: typeof appLogger;
+        redis: typeof redis;
+    }
+
+    interface Repositories {
+        tokensRepository: ReturnType<typeof createTokensRepository>;
+    }
+
+    interface Services {
+        tokensService: ReturnType<typeof createTokenService>;
+    }
+
+    type AppDependencies = CoreDependencies & Repositories & Services;
 }
 export {};

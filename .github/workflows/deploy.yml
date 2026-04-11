@@ -1,15 +1,19 @@
-name: Deploy from main
+name: Deploy Selector
 
 on:
     workflow_dispatch:
         inputs:
             target:
-                description: "What do you want to deploy?"
+                description: "What to deploy"
                 required: true
                 type: choice
                 options:
                     - app
                     - workers
+                    - both
+
+permissions:
+    contents: write
 
 jobs:
     deploy:
@@ -19,10 +23,20 @@ jobs:
             - name: Checkout main
               uses: actions/checkout@v4
 
-            - name: Deploy App
-              if: ${{ inputs.target == 'app' }}
-              uses: ./.github/workflows/app.yml
+            - name: Deploy App branch
+              if: ${{ inputs.target == 'app' || inputs.target == 'both' }}
+              run: |
+                  git config user.name "github-actions"
+                  git config user.email "actions@github.com"
 
-            - name: Deploy Workers
-              if: ${{ inputs.target == 'workers' }}
-              uses: ./.github/workflows/workers.yml
+                  git checkout -B application
+                  git push origin application --force
+
+            - name: Deploy Workers branch
+              if: ${{ inputs.target == 'workers' || inputs.target == 'both' }}
+              run: |
+                  git config user.name "github-actions"
+                  git config user.email "actions@github.com"
+
+                  git checkout -B workers
+                  git push origin workers --force

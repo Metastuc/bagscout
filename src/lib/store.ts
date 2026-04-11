@@ -3,49 +3,56 @@ import { immer } from "zustand/middleware/immer";
 
 interface AppStateValues {
     activeTab: DiscoverTabs;
-    filters: Record<string, unknown>;
     isAuthenticated: boolean;
-    tickerTokens: Array<MergedBagsTokenWithPool>;
 }
 
 interface AppStateActions {
-    createShareableLink: () => string;
-    readShareableLink: () => void;
     setActiveTab: (tab: AppStateValues["activeTab"]) => void;
-    setFilters: (filters: AppStateValues["filters"]) => void;
     setIsAuthenticated: (isAuthenticated: boolean) => void;
-    setTickerTokens: (tokens: Array<MergedBagsTokenWithPool>) => void;
 }
 
-export type AppState = AppStateValues & AppStateActions;
+type AppState = AppStateValues & AppStateActions;
 
 export const useClientViewState = create<AppState>()(
-    immer((set, get) => ({
+    immer((set) => ({
         activeTab: "trending",
-        filters: {},
         isAuthenticated: false,
-        tickerTokens: [],
 
-        createShareableLink() {
-            const { activeTab, filters } = get();
-            const params = btoa(JSON.stringify({ activeTab, filters }));
-            return `${window.location.origin}?state=${params}`;
+        setActiveTab(tab) {
+            set({ activeTab: tab });
         },
 
-        readShareableLink() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const stateParam = urlParams.get("state");
-            if (!stateParam) return;
-            const state = JSON.parse(atob(stateParam));
-            set(state);
+        setIsAuthenticated(isAuthenticated) {
+            set({ isAuthenticated });
+        },
+    })),
+);
+
+type ModalViews = "deploy" | "search" | "tokenDetails" | "watchlist";
+
+interface ModalViewStateValues {
+    isOpen: boolean;
+    content: ModalViews | null;
+}
+
+interface ModalViewStateActions {
+    openModal: (content: ModalViews) => void;
+    closeModal: () => void;
+}
+
+type ModalViewState = ModalViewStateValues & ModalViewStateActions;
+
+export const useModalViewStore = create<ModalViewState>()(
+    immer((set) => ({
+        content: null,
+        isOpen: false,
+
+        closeModal() {
+            set({ isOpen: false, content: null });
         },
 
-        setActiveTab: (tab) => set({ activeTab: tab }),
-
-        setFilters: (filters) => set({ filters }),
-
-        setIsAuthenticated: (isAuthenticated) => set({ isAuthenticated }),
-
-        setTickerTokens: (tokens) => set({ tickerTokens: tokens }),
+        openModal(content) {
+            set({ isOpen: true, content });
+        },
     })),
 );

@@ -1,7 +1,10 @@
 import type { PropsWithChildren } from "react";
 
-interface BaseModalLayoutProps {}
+interface BaseModalLayoutProps {
+    isOpen: boolean;
+}
 
-export function BaseModalLayout({ children }: PropsWithChildren<BaseModalLayoutProps>) {
+export function BaseModalLayout({ children, isOpen }: PropsWithChildren<BaseModalLayoutProps>) {
+    if (!isOpen) return null;
     return <section>{children}</section>;
 }

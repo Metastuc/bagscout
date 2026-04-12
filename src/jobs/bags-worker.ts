@@ -3,11 +3,9 @@ import { Queue, Worker } from "bullmq";
 import { redis } from "#/modules/core/redis.ts";
 import { getPoolsFromBags, getTokensFromBags } from "#/modules/services/bags.ts";
 import { mergeBagsTokenWithPool } from "#/modules/utils/merge-bags-pool.ts";
-import { chunkArray } from "#/utils/chunk.ts";
 import { toTime } from "#/utils/time.ts";
 
 import { withDependencies } from "../modules";
-import { geckoDataQueue } from "./gecko-worker";
 
 export const bagsTokenQueue = new Queue("bags-tokens-refresh", {
     connection: redis,
@@ -50,15 +48,6 @@ new Worker(
 
             await deps.tokensService.setMultipleTokens(mergeWithCache);
         });
-
-        const poolAddresses = merged.map((token) => token.poolAddress).filter(Boolean) as Array<string>;
-        const poolBatches = chunkArray(poolAddresses, 25);
-
-        for (const batch of poolBatches) {
-            await geckoDataQueue.add("refresh-gecko-data-batch", {
-                poolAddresses: batch,
-            });
-        }
 
         return { count: merged.length };
     },

@@ -20,11 +20,11 @@ export const geckoDataQueue = new Queue("gecko-data-refresh", {
     },
 });
 
-const [$2Minutes, $15Minutes, $30Minutes] = [
-    toTime({ unit: "minutes", value: 2, output: "milliseconds" }) as number,
-    toTime({ unit: "minutes", value: 15, output: "milliseconds" }) as number,
-    toTime({ unit: "minutes", value: 30, output: "milliseconds" }) as number,
-];
+// const [$2Minutes, $15Minutes, $30Minutes] = [
+//     toTime({ unit: "minutes", value: 2, output: "milliseconds" }) as number,
+//     toTime({ unit: "minutes", value: 15, output: "milliseconds" }) as number,
+//     toTime({ unit: "minutes", value: 30, output: "milliseconds" }) as number,
+// ];
 
 new Worker(
     "gecko-data-refresh",
@@ -46,20 +46,20 @@ new Worker(
                     const existing = await deps.tokensService.getToken(poolAddress);
                     const poolData = poolsMap.get(poolAddress) ?? null;
 
-                    if (existing?.geckoData?.fetchedAt) {
-                        const dataAge = Date.now() - existing.geckoData.fetchedAt;
-                        const transactionsIn24H = existing.geckoData.data?.attributes?.transactions?.h24;
-                        const totalTransactions = (transactionsIn24H?.sells ?? 0) + (transactionsIn24H?.buys ?? 0);
-                        const staleDuration = totalTransactions > 100 ? $2Minutes : totalTransactions > 10 ? $15Minutes : $30Minutes;
+                    // if (existing?.geckoData?.fetchedAt) {
+                    //     const dataAge = Date.now() - existing.geckoData.fetchedAt;
+                    //     const transactionsIn24H = existing.geckoData.data?.attributes?.transactions?.h24;
+                    //     const totalTransactions = (transactionsIn24H?.sells ?? 0) + (transactionsIn24H?.buys ?? 0);
+                    //     const staleDuration = totalTransactions > 100 ? $2Minutes : totalTransactions > 10 ? $15Minutes : $30Minutes;
 
-                        if (dataAge < staleDuration) {
-                            deps.logger.info({
-                                msg: "Skipping Gecko API update for pool due to recent data",
-                                data: { poolAddress },
-                            });
-                            continue;
-                        }
-                    }
+                    //     if (dataAge < staleDuration) {
+                    //         deps.logger.info({
+                    //             msg: "Skipping Gecko API update for pool due to recent data",
+                    //             data: { poolAddress },
+                    //         });
+                    //         continue;
+                    //     }
+                    // }
 
                     await deps.tokensService.updateToken(poolAddress, {
                         data: poolData,

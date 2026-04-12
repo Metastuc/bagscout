@@ -4,6 +4,7 @@ import { toTime } from "#/utils/time.ts";
 
 import { withDependencies } from "../modules";
 import { bagsTokenQueue } from "./bags-worker";
+import { refreshTokenQueue } from "./refresh";
 
 let jobsStarted = false;
 
@@ -28,13 +29,16 @@ export async function startJobs() {
         {},
         {
             jobId: "bags-refresh-feed",
-            repeat: {
-                every: toTime({
-                    unit: "minutes",
-                    value: 5,
-                    output: "milliseconds",
-                }) as number,
-            },
+            repeat: { every: toTime({ unit: "minutes", value: 5, output: "milliseconds" }) as number },
+        },
+    );
+
+    await refreshTokenQueue.add(
+        "refresh",
+        {},
+        {
+            jobId: "refresh-database-tokens",
+            repeat: { every: toTime({ unit: "minutes", value: 1, output: "milliseconds" }) as number },
         },
     );
 
@@ -42,9 +46,6 @@ export async function startJobs() {
 }
 
 startJobs().catch((error) => {
-    appLogger.error({
-        msg: (error as Error).message,
-        data: { stack: (error as Error).stack },
-    });
+    appLogger.error({ msg: (error as Error).message, data: { stack: (error as Error).stack } });
     process.exit(1);
 });

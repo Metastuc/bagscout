@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 
+import { SearchBar } from "../search";
 import { ConnectWalletButton } from "./components/button";
 
 export function TopNavBar() {
@@ -11,6 +12,8 @@ export function TopNavBar() {
                         <img src="/bagscoutpng.png" alt="Bagscout Logo" />
                     </Link>
                 </aside>
+
+                <SearchBar />
 
                 <ConnectWalletButton />
             </div>

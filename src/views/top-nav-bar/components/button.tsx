@@ -28,14 +28,14 @@ export function ConnectWalletButton({ className }: { className?: string }) {
 
     return (
         <Button
-            className={cn("text-sm flex items-center justify-center lg:min-w-32 cursor-pointer", className)}
+            className={cn("text-sm flex items-center justify-center size-9 lg:min-w-34 cursor-pointer bg-[#02d92e]/75", className)}
             onClick={() => (authenticated ? logout() : login())}
             disabled={!ready}
         >
             {!isAuthenticated ? (
                 <Fragment>
-                    <i className="size-5 items-center justify-center lg:hidden">
-                        <Wallet className="size-full" />
+                    <i className="flex items-center justify-center lg:hidden">
+                        <Wallet size={36} strokeWidth={3} />
                     </i>
                     <span className="hidden lg:block">connect wallet</span>
                 </Fragment>

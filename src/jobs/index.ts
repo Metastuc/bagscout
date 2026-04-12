@@ -11,7 +11,7 @@ export async function startJobs() {
     if (jobsStarted) return;
     jobsStarted = true;
 
-    withDependencies(async function (deps) {
+    void withDependencies(async function (deps) {
         deps.logger.info({ msg: "Starting background jobs" });
         deps.logger.info({ msg: "Running startup events" });
         void existingDataInRedisToPostgres(deps).catch((error) => {

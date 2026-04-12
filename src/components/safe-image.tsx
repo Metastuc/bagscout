@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, Fragment } from "react";
 
 import { cn } from "#/lib/utils.ts";
 
-export function SafeImage({ alt, src, symbol }: { alt: string; src: string; symbol: string }) {
+export function SafeImage({ alt, src, symbol, styles }: { alt: string; src: string; symbol: string; styles?: Record<string, string> }) {
     const [status, setStatus] = useState<"loading" | "loaded" | "error">("loading");
     const imgRef = useRef<HTMLImageElement>(null);
 
@@ -14,7 +14,7 @@ export function SafeImage({ alt, src, symbol }: { alt: string; src: string; symb
     }, [src]);
 
     const fallback = (
-        <div className="bg-muted flex size-10 items-center justify-center rounded-xs text-xl font-medium uppercase">
+        <div className={cn("bg-muted flex size-10 items-center justify-center rounded-xs text-xl font-medium uppercase", styles?.fallbackImage)}>
             <span>{symbol.slice(0, 1).toUpperCase()}</span>
         </div>
     );
@@ -30,7 +30,7 @@ export function SafeImage({ alt, src, symbol }: { alt: string; src: string; symb
                 src={src}
                 alt={alt}
                 loading="eager"
-                className={cn("size-10 rounded-xs", status !== "loaded" && "hidden")}
+                className={cn("size-10 rounded-xs", status !== "loaded" && "hidden", styles?.image)}
                 onLoad={() => setStatus("loaded")}
                 onError={() => setStatus("error")}
             />

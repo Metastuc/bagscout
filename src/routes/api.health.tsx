@@ -27,7 +27,7 @@ export const Route = createFileRoute("/api/health")({
                         });
                     });
                 } catch (error) {
-                    withDependencies(async (deps) =>
+                    void withDependencies(async (deps) =>
                         deps.logger.error({
                             msg: "Health check failed",
                             data: { error: (error as Error).message, stack: (error as Error).stack },
@@ -48,4 +48,3 @@ export const Route = createFileRoute("/api/health")({
         },
     },
 });
-

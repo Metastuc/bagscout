@@ -89,14 +89,7 @@ export const DataTable = memo(function ({ fetchNextPage, tokens, hasNextPage, is
                             key={row.id}
                             className="hover:bg-muted/30 group grid min-w-fit cursor-pointer border-b"
                             style={{ gridTemplateColumns: GRID_COLUMNS }}
-                            onClick={() =>
-                                navigate({
-                                    search: (previous) => ({
-                                        ...previous,
-                                        token: row.original.tokenMint,
-                                    }),
-                                })
-                            }
+                            onClick={() => navigate({ search: (previous) => ({ ...previous, token: row.original.tokenMint }) })}
                         >
                             {row.getVisibleCells().map((cell) => {
                                 return (

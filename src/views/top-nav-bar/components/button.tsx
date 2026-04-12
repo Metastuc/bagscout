@@ -28,7 +28,10 @@ export function ConnectWalletButton({ className }: { className?: string }) {
 
     return (
         <Button
-            className={cn("text-sm flex items-center justify-center size-9 lg:min-w-34 cursor-pointer bg-[#02d92e]/75", className)}
+            className={cn(
+                "text-sm flex items-center justify-center size-10 lg:min-w-34 cursor-pointer bg-[#02d92e]/75 border border-[#02d92e]/90",
+                className,
+            )}
             onClick={() => (authenticated ? logout() : login())}
             disabled={!ready}
         >

@@ -1,4 +1,4 @@
-import { desc, eq, sql } from "drizzle-orm";
+import { desc, eq, ilike, or, sql } from "drizzle-orm";
 
 import { tokensTable, type NewTokenRow, type TokenRow } from "./schema";
 
@@ -84,6 +84,20 @@ export function createTokensRepository(deps: CoreDependencies) {
             return rows.map(toMerged);
         },
 
+        async getToken(input: { tokenMint?: string; poolAddress?: string }) {
+            if (input.tokenMint) {
+                const rows = await deps.db.select().from(tokensTable).where(eq(tokensTable.tokenMint, input.tokenMint)).limit(1);
+                return rows[0] ? toMerged(rows[0]) : null;
+            }
+
+            if (input.poolAddress) {
+                const rows = await deps.db.select().from(tokensTable).where(eq(tokensTable.poolAddress, input.poolAddress)).limit(1);
+                return rows[0] ? toMerged(rows[0]) : null;
+            }
+
+            return null;
+        },
+
         async getTokenByPoolAddress(poolAddress: string): Promise<MergedBagsTokenWithPool | null> {
             const rows = await deps.db.select().from(tokensTable).where(eq(tokensTable.poolAddress, poolAddress)).limit(1);
             return rows[0] ? toMerged(rows[0]) : null;
@@ -116,6 +130,20 @@ export function createTokensRepository(deps: CoreDependencies) {
                         },
                     });
             }
+        },
+
+        async searchTokens(query: string, limit = 10) {
+            if (query.length < 2) return [];
+
+            const search = `%${query}%`;
+            const rows = await deps.db
+                .select()
+                .from(tokensTable)
+                .where(or(ilike(tokensTable.name, search), ilike(tokensTable.symbol, search)))
+                .orderBy(desc(tokensTable.volumeH24))
+                .limit(limit);
+
+            return rows.map(toMerged);
         },
 
         async updateGeckoData(poolAddress: string, geckoData: MergedBagsTokenWithPool["geckoData"]): Promise<void> {

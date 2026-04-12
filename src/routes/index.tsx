@@ -66,7 +66,6 @@ function RouteComponent() {
     });
 
     const allTokens = useMemo(() => data?.pages.flatMap((page) => page.tokens) ?? [], [data]);
-    const selectedToken = token ? allTokens.find((t) => t.tokenMint === token) : undefined;
 
     return (
         <Fragment>
@@ -75,9 +74,9 @@ function RouteComponent() {
             <DataTable fetchNextPage={fetchNextPage} hasNextPage={hasNextPage} isFetchingNextPage={isFetchingNextPage} tokens={allTokens} />
 
             <Suspense fallback={undefined}>
-                {selectedToken ? (
+                {token ? (
                     <TokenDetailsModal
-                        token={selectedToken}
+                        tokenMint={token}
                         onClose={() => {
                             void navigate({ search: { token: undefined } });
                         }}

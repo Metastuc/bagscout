@@ -124,9 +124,21 @@ export function createTokensRepository(deps: CoreDependencies) {
                     .onConflictDoUpdate({
                         target: tokensTable.tokenMint,
                         set: {
-                            status: sql`excluded.status`,
+                            accountKeys: sql`excluded.account_keys`,
+                            dammV2PoolKey: sql`excluded.damm_v2_pool_key`,
+                            dbcConfigKey: sql`excluded.dbc_config_key`,
+                            dbcPoolKey: sql`excluded.dbc_pool_key`,
+                            description: sql`excluded.description`,
                             image: sql`excluded.image`,
+                            launchSignature: sql`excluded.launch_signature`,
+                            name: sql`excluded.name`,
+                            poolAddress: sql`excluded.pool_address`,
+                            status: sql`excluded.status`,
+                            symbol: sql`excluded.symbol`,
+                            twitter: sql`excluded.twitter`,
                             updatedAt: sql`excluded.updated_at`,
+                            uri: sql`excluded.uri`,
+                            website: sql`excluded.website`,
                         },
                     });
             }

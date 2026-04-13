@@ -24,32 +24,19 @@ export const bagsTokenQueue = new Queue("bags-tokens-refresh", {
 new Worker(
     "bags-tokens-refresh",
     async function (job) {
-        console.log("BAGS JOB START", {
-            jobId: job.id,
-            repeatJobKey: job.repeatJobKey,
-            ts: Date.now(),
-        });
-
-        const existingTokens = await withDependencies((deps) => deps.tokensRepository.getAllTokens());
-        const existingMap = new Map(existingTokens?.map((token) => [token.poolAddress, token]));
-
-        const [tokens, pools] = await Promise.all([
-            withDependencies((deps) => getTokensFromBags(deps)),
-            withDependencies((deps) => getPoolsFromBags(deps)),
-        ]);
-
-        const merged = mergeBagsTokenWithPool(tokens ?? [], pools ?? []);
-
         await withDependencies(async (deps) => {
-            const mergeWithCache = merged.map(function (token) {
-                const cached = existingMap.get(token.poolAddress as string);
-                return cached?.geckoData ? { ...token, geckoData: cached.geckoData } : token;
+            const logger = deps.logger.child({ module: "BAGS TOKENS REFRESH", eventId: job.id });
+            logger.info({ msg: "Starting bags tokens refresh job", data: { jobId: job.id, repeatJobKey: job.repeatJobKey } });
+
+            const [tokens, pools] = await Promise.all([getTokensFromBags({ ...deps, logger }), getPoolsFromBags({ ...deps, logger })]);
+            const merged = mergeBagsTokenWithPool(tokens ?? [], pools ?? []);
+            await deps.tokensService.setMultipleTokens(merged);
+
+            logger.info({
+                msg: "Finished bags tokens refresh job",
+                data: { jobId: job.id, repeatJobKey: job.repeatJobKey, mergedCount: merged.length },
             });
-
-            await deps.tokensService.setMultipleTokens(mergeWithCache);
         });
-
-        return { count: merged.length };
     },
     { connection: redis },
 );

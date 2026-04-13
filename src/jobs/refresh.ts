@@ -1,8 +1,8 @@
-import { chunkArray } from "@bagsfm/bags-sdk";
 import { Queue, Worker } from "bullmq";
 
 import { redis } from "#/modules/core/redis.ts";
-import { classifyToken, groupByTier } from "#/modules/utils/classify-tokens.ts";
+import { classifyToken } from "#/modules/utils/classify-tokens.ts";
+import { chunkArray } from "#/utils/chunk.ts";
 import { toTime } from "#/utils/time.ts";
 
 import { withDependencies } from "../modules";
@@ -24,55 +24,46 @@ export const refreshTokenQueue = new Queue("db-tokens-refresh", {
 
 const BATCH_SIZE = 25;
 
-const CURSORS = {
-    hot: "cursor:hot",
-    warm: "cursor:warm",
-    cold: "cursor:cold",
-};
-
 new Worker(
     "db-tokens-refresh",
     async function (job) {
-        console.log("DB TOKENS REFRESH JOB START", {
-            jobId: job.id,
-            repeatJobKey: job.repeatJobKey,
-            ts: Date.now(),
-        });
-
         await withDependencies(async (deps) => {
-            const tokens = await deps.tokensRepository.getAllTokens();
-            tokens.sort((a, b) => (a.poolAddress ?? "").localeCompare(b.poolAddress ?? ""));
+            const logger = deps.logger.child({ module: "DB TOKENS REFRESH", eventId: job.id });
+            logger.info({ msg: "Starting DB tokens refresh job", data: { jobId: job.id, repeatJobKey: job.repeatJobKey } });
 
-            const [hot, warm, cold] = [[], [], []] as Array<MergedBagsTokenWithPool[]>;
-
-            for (const token of tokens) {
-                if (!token.poolAddress) continue;
-                const tier = classifyToken(token);
-
-                if (tier === "hot") hot.push(token);
-                else if (tier === "warm") warm.push(token);
-                else cold.push(token);
+            const geckoJobCount = await geckoDataQueue.getJobCounts("active", "waiting", "delayed");
+            const totalPending = geckoJobCount.active + geckoJobCount.waiting + geckoJobCount.delayed;
+            if (totalPending > 0) {
+                logger.warn({ msg: "Gecko queue busy, skipping rotation", data: { pendingGeckoJobs: totalPending } });
+                return;
             }
 
-            const selected = [
-                ...(await groupByTier({ key: CURSORS.hot, list: hot, counter: BATCH_SIZE * 2, deps })),
-                ...(await groupByTier({ key: CURSORS.warm, list: warm, counter: BATCH_SIZE * 1, deps })),
-                ...(await groupByTier({ key: CURSORS.cold, list: cold, counter: BATCH_SIZE * 1, deps })),
-            ];
+            const sortedTokens = (await deps.tokensRepository.getAllTokens())
+                .filter((token) => token.poolAddress)
+                .sort((a, b) => {
+                    const tierOrder = { hot: 0, warm: 1, cold: 2 };
+                    return tierOrder[classifyToken(a)] - tierOrder[classifyToken(b)];
+                });
 
-            const poolBatches = chunkArray(selected, BATCH_SIZE);
+            const poolBatches = chunkArray(
+                sortedTokens.map((token) => token.poolAddress as string),
+                BATCH_SIZE,
+            );
 
             for (const batch of poolBatches) {
-                await geckoDataQueue.add("refresh-gecko-data-batch", {
-                    poolAddresses: batch,
-                });
+                await geckoDataQueue.add("refresh-gecko-data-batch", { poolAddresses: batch });
             }
 
-            console.log("DB TOKENS REFRESH JOB END", {
-                hot: hot.length,
-                warm: warm.length,
-                cold: cold.length,
-                selected: selected.length,
+            logger.info({
+                msg: "Finished DB tokens refresh job",
+                data: {
+                    total: sortedTokens.length,
+                    batches: poolBatches.length,
+                    hot: sortedTokens.filter((t) => classifyToken(t) === "hot").length,
+                    warm: sortedTokens.filter((t) => classifyToken(t) === "warm").length,
+                    cold: sortedTokens.filter((t) => classifyToken(t) === "cold").length,
+                    estimatedMinutes: Math.round((poolBatches.length * 15) / 60),
+                },
             });
         });
     },

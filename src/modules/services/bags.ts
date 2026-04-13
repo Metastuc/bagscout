@@ -15,7 +15,12 @@ export async function getTokensFromBags(deps: AppDependencies) {
             });
             return responseData.response;
         })
-        .catch((error) => deps.logger.error(error));
+        .catch((error) =>
+            deps.logger.error({
+                msg: "Error fetching tokens from Bags API",
+                data: { message: (error as Error).message, stack: (error as Error).stack },
+            }),
+        );
 }
 
 export async function getPoolsFromBags(deps: AppDependencies) {
@@ -28,5 +33,10 @@ export async function getPoolsFromBags(deps: AppDependencies) {
             });
             return responseData.response;
         })
-        .catch((error) => deps.logger.error(error));
+        .catch((error) =>
+            deps.logger.error({
+                msg: "Error fetching pools from Bags API",
+                data: { message: (error as Error).message, stack: (error as Error).stack },
+            }),
+        );
 }

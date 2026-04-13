@@ -38,7 +38,7 @@ export async function startJobs() {
         {},
         {
             jobId: "refresh-database-tokens",
-            repeat: { every: toTime({ unit: "minutes", value: 1, output: "milliseconds" }) as number },
+            repeat: { every: toTime({ unit: "minutes", value: 10, output: "milliseconds" }) as number },
         },
     );
 

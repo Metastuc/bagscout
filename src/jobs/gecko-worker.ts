@@ -20,73 +20,35 @@ export const geckoDataQueue = new Queue("gecko-data-refresh", {
     },
 });
 
-// const [$2Minutes, $15Minutes, $30Minutes] = [
-//     toTime({ unit: "minutes", value: 2, output: "milliseconds" }) as number,
-//     toTime({ unit: "minutes", value: 15, output: "milliseconds" }) as number,
-//     toTime({ unit: "minutes", value: 30, output: "milliseconds" }) as number,
-// ];
-
 new Worker(
     "gecko-data-refresh",
     async function (job) {
-        console.log("GECKO JOB START", {
-            jobId: job.id,
-            repeatJobKey: job.repeatJobKey,
-            ts: Date.now(),
-        });
+        await withDependencies(async (deps) => {
+            const logger = deps.logger.child({ module: "GECKO DATA REFRESH", eventId: job.id });
+            logger.info({ msg: "Starting Gecko data refresh job", data: { jobId: job.id, repeatJobKey: job.repeatJobKey } });
 
-        const { poolAddresses } = job.data as { poolAddresses: Array<string> };
+            const { poolAddresses } = job.data as { poolAddresses: Array<string> };
+            const pools = await getGeckoPools(poolAddresses, { ...deps, logger });
+            if (!pools || pools.length === 0) return null;
 
-        try {
-            const pools = await withDependencies(async (deps) => await getGeckoPools(poolAddresses, deps));
-            const poolsMap = new Map(pools?.map((pool) => [pool.attributes.address, pool]));
-
-            await withDependencies(async (deps) => {
+            try {
+                const poolsMap = new Map(pools?.map((pool) => [pool.attributes.address, pool]));
                 for (const poolAddress of poolAddresses) {
-                    const existing = await deps.tokensService.getToken(poolAddress);
                     const poolData = poolsMap.get(poolAddress) ?? null;
-
-                    // if (existing?.geckoData?.fetchedAt) {
-                    //     const dataAge = Date.now() - existing.geckoData.fetchedAt;
-                    //     const transactionsIn24H = existing.geckoData.data?.attributes?.transactions?.h24;
-                    //     const totalTransactions = (transactionsIn24H?.sells ?? 0) + (transactionsIn24H?.buys ?? 0);
-                    //     const staleDuration = totalTransactions > 100 ? $2Minutes : totalTransactions > 10 ? $15Minutes : $30Minutes;
-
-                    //     if (dataAge < staleDuration) {
-                    //         deps.logger.info({
-                    //             msg: "Skipping Gecko API update for pool due to recent data",
-                    //             data: { poolAddress },
-                    //         });
-                    //         continue;
-                    //     }
-                    // }
-
-                    await deps.tokensService.updateToken(poolAddress, {
-                        data: poolData,
-                        fetchedAt: Date.now(),
-                    });
+                    await deps.tokensService.updateToken(poolAddress, { data: poolData, fetchedAt: Date.now() });
                 }
+            } catch (error) {
+                logger.error({ msg: "Error in Gecko data refresh job", data: { message: (error as Error).message, stack: (error as Error).stack } });
+            }
 
-                await deps.tokensService.refreshTickerTokens();
+            logger.info({
+                msg: "Finished Gecko data refresh job",
+                data: { jobId: job.id, repeatJobKey: job.repeatJobKey, updatedPools: pools.length },
             });
-
-            console.log("GECKO BATCH RESULT", {
-                requested: poolAddresses.length,
-                received: pools.length,
-                sample: pools[0]?.attributes?.address,
-            });
-        } catch (error) {
-            await withDependencies(async (deps) => {
-                deps.logger.error({ msg: (error as Error).message, data: { stack: (error as Error).stack } });
-            });
-            return null;
-        }
+        });
     },
     {
         connection: redis,
-        limiter: {
-            max: 1,
-            duration: toTime({ unit: "seconds", value: 15, output: "milliseconds" }) as number,
-        },
+        limiter: { max: 1, duration: toTime({ unit: "seconds", value: 15, output: "milliseconds" }) as number },
     },
 );

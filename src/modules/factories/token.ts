@@ -1,5 +1,3 @@
-import { toTime } from "#/utils/time.ts";
-
 import { REDIS_KEYS } from "../core/config";
 
 export function createTokenService(deps: CoreDependencies & Repositories) {
@@ -130,7 +128,6 @@ export function createTokenService(deps: CoreDependencies & Repositories) {
                 await this.setToken({ ...existing, geckoData });
 
                 if (volumeIn24H > 0) await deps.redis.zadd(REDIS_KEYS.TOKEN_VOLUME_KEY, volumeIn24H, poolAddress);
-                await this.refreshTickerTokens();
             } catch (error) {
                 deps.logger.error({
                     msg: "Failed to update token cache",
@@ -164,49 +161,6 @@ export function createTokenService(deps: CoreDependencies & Repositories) {
                     .filter((token): token is MergedBagsTokenWithPool => token !== null);
             } catch {
                 return await deps.tokensRepository.getTopTokensByVolume(limit);
-            }
-        },
-
-        /**
-         * Retrieves the top 20 tokens by volume from the Redis cache.
-         * If the cache is empty, it falls back to retrieving the top 20 tokens
-         * by volume from the database.
-         *
-         * @returns {Promise<Array<MergedBagsTokenWithPool>>} An array of MergedBagsTokenWithPool objects
-         */
-        async getTickerTokens(): Promise<Array<MergedBagsTokenWithPool>> {
-            try {
-                const raw = await deps.redis.get(REDIS_KEYS.TICKER_TOKENS_KEY);
-                return raw ? (JSON.parse(raw) as Array<MergedBagsTokenWithPool>) : [];
-            } catch {
-                return await deps.tokensRepository.getTopTokensByVolume(20);
-            }
-        },
-
-        /**
-         * Refreshes the ticker tokens in the Redis cache by retrieving the top 20
-         * tokens by volume from the database and setting them in the cache.
-         * If the retrieval fails, an error is logged.
-         *
-         * @returns {Promise<void>} A promise that resolves when the ticker tokens
-         * have been refreshed in the Redis cache.
-         */
-        async refreshTickerTokens() {
-            try {
-                const topTokens = await deps.tokensRepository.getTopTokensByVolume(20);
-
-                if (topTokens.length > 0)
-                    await deps.redis.set(
-                        REDIS_KEYS.TICKER_TOKENS_KEY,
-                        JSON.stringify(topTokens),
-                        "EX",
-                        toTime({ unit: "minutes", value: 10, output: "seconds" }) as number,
-                    );
-            } catch (error) {
-                deps.logger.error({
-                    msg: "Failed to refresh ticker tokens in Redis cache",
-                    data: { error: (error as Error).message, stack: (error as Error).stack },
-                });
             }
         },
     };

@@ -2,6 +2,12 @@ import { desc, eq, ilike, or, sql } from "drizzle-orm";
 
 import { tokensTable, type NewTokenRow, type TokenRow } from "./schema";
 
+/**
+ * Converts a TokenRow into a MergedBagsTokenWithPool.
+ *
+ * @param row - The TokenRow to convert.
+ * @returns The converted MergedBagsTokenWithPool.
+ */
 function toMerged(row: TokenRow): MergedBagsTokenWithPool {
     const attributes = row.geckoAttributes ? (JSON.parse(row.geckoAttributes) as GeckoPoolAttributes) : null;
 
@@ -45,6 +51,12 @@ function toMerged(row: TokenRow): MergedBagsTokenWithPool {
     };
 }
 
+/**
+ * Returns a NewTokenRow object with the given MergedBagsTokenWithPool.
+ *
+ * @param {MergedBagsTokenWithPool} token - The MergedBagsTokenWithPool to use.
+ * @returns {NewTokenRow} - The NewTokenRow object containing the token's data.
+ */
 function fromMerged(token: MergedBagsTokenWithPool): NewTokenRow {
     const attributes = token.geckoData?.data?.attributes;
 
@@ -79,11 +91,25 @@ function fromMerged(token: MergedBagsTokenWithPool): NewTokenRow {
 
 export function createTokensRepository(deps: CoreDependencies) {
     return {
+        /**
+         * Retrieves all tokens from the database, sorted by volume in descending order.
+         * @returns {Promise<Array<MergedBagsTokenWithPool>>} A promise that resolves
+         * with an array of MergedBagsTokenWithPool objects.
+         */
         async getAllTokens(): Promise<Array<MergedBagsTokenWithPool>> {
             const rows = await deps.db.select().from(tokensTable).orderBy(desc(tokensTable.volumeH24));
             return rows.map(toMerged);
         },
 
+        /**
+         * Retrieves a single token from the database.
+         * If the tokenMint is provided, it will be used to search for the token.
+         * If the poolAddress is provided, it will be used to search for the token.
+         * If neither tokenMint nor poolAddress is provided, it will return null.
+         * @param {{ tokenMint?: string; poolAddress?: string }}
+         * @returns {Promise<MergedBagsTokenWithPool | null>} A promise that resolves
+         * with the retrieved token or null if it does not exist.
+         */
         async getToken(input: { tokenMint?: string; poolAddress?: string }) {
             if (input.tokenMint) {
                 const rows = await deps.db.select().from(tokensTable).where(eq(tokensTable.tokenMint, input.tokenMint)).limit(1);
@@ -98,11 +124,12 @@ export function createTokensRepository(deps: CoreDependencies) {
             return null;
         },
 
-        async getTokenByPoolAddress(poolAddress: string): Promise<MergedBagsTokenWithPool | null> {
-            const rows = await deps.db.select().from(tokensTable).where(eq(tokensTable.poolAddress, poolAddress)).limit(1);
-            return rows[0] ? toMerged(rows[0]) : null;
-        },
-
+        /**
+         * Retrieves the top tokens by volume from the database.
+         * @param {number} limit The number of tokens to retrieve.
+         * @returns {Promise<Array<MergedBagsTokenWithPool>>} A promise that resolves
+         * with an array of MergedBagsTokenWithPool objects, sorted by volume in descending order.
+         */
         async getTopTokensByVolume(limit: number): Promise<Array<MergedBagsTokenWithPool>> {
             const rows = await deps.db
                 .select()
@@ -113,6 +140,14 @@ export function createTokensRepository(deps: CoreDependencies) {
             return rows.map(toMerged);
         },
 
+        /**
+         * Upserts tokens into the database.
+         * It maps each token to its corresponding NewTokenRow, then chunks the array into smaller arrays
+         * and inserts them into the database. If a token already exists in the database, it updates the existing
+         * token with the new values.
+         * @param {Array<MergedBagsTokenWithPool>} tokens The array of tokens to upsert.
+         * @returns {Promise<void>} A promise that resolves when the upsert operation is complete.
+         */
         async upsertTokens(tokens: Array<MergedBagsTokenWithPool>): Promise<void> {
             const newRows = tokens.map(fromMerged);
             const chunkSize = 50;
@@ -144,6 +179,14 @@ export function createTokensRepository(deps: CoreDependencies) {
             }
         },
 
+        /**
+         * Searches for tokens by name or symbol, and returns the results sorted by volume in descending order.
+         * If the query length is less than 2, it will return an empty array.
+         * @param {string} query The search query.
+         * @param {number} [limit=10] The number of tokens to retrieve.
+         * @returns {Promise<Array<MergedBagsTokenWithPool>>} A promise that resolves
+         * with an array of MergedBagsTokenWithPool objects.
+         */
         async searchTokens(query: string, limit = 10) {
             if (query.length < 2) return [];
 
@@ -158,20 +201,28 @@ export function createTokensRepository(deps: CoreDependencies) {
             return rows.map(toMerged);
         },
 
+        /**
+         * Updates a single token in the database with its Gecko data.
+         * If the token does not exist in the database, it is added with the current timestamp
+         * If the token does exist, its last fetched timestamp is updated
+         * @param {string} poolAddress The pool address of the token to update
+         * @param {MergedBagsTokenWithPool["geckoData"]} geckoData The Gecko data of the token to update
+         * @returns {Promise<void>} A promise that resolves when the token has been updated in the database
+         */
         async updateGeckoData(poolAddress: string, geckoData: MergedBagsTokenWithPool["geckoData"]): Promise<void> {
             const attributes = geckoData?.data?.attributes;
 
             await deps.db
                 .update(tokensTable)
                 .set({
-                    geckoIndexed: !!attributes,
-                    geckoFetchedAt: geckoData?.fetchedAt,
                     geckoAttributes: attributes ? JSON.stringify(attributes) : null,
                     geckoDexId: geckoData?.data?.relationships?.dex?.data?.id,
-                    volumeH24: attributes ? parseFloat(attributes.volume_usd.h24) : undefined,
+                    geckoFetchedAt: geckoData?.fetchedAt,
+                    geckoIndexed: !!attributes,
                     priceChangeH24: attributes ? parseFloat(attributes.price_change_percentage.h24) : undefined,
                     reserveInUsd: attributes ? parseFloat(attributes.reserve_in_usd) : undefined,
                     updatedAt: new Date(),
+                    volumeH24: attributes ? parseFloat(attributes.volume_usd.h24) : undefined,
                 })
                 .where(eq(tokensTable.poolAddress, poolAddress));
         },

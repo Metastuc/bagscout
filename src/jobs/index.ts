@@ -1,4 +1,3 @@
-import { existingDataInRedisToPostgres } from "#/script/redis-to-sql.ts";
 import { appLogger } from "#/utils/log.ts";
 import { toTime } from "#/utils/time.ts";
 
@@ -14,14 +13,7 @@ export async function startJobs() {
 
     await withDependencies(async function (deps) {
         const logger = deps.logger.child({ module: "JOBS STARTUP" });
-        logger.info({ msg: "Running startup events" });
-
-        void existingDataInRedisToPostgres({ ...deps, logger }).catch((error) => {
-            logger.error({
-                msg: "Error during Redis to Postgres migration",
-                data: { message: (error as Error).message, stack: (error as Error).stack },
-            });
-        });
+        logger.info({ msg: "Starting background jobs" });
 
         await bagsTokenQueue.add(
             "refresh",

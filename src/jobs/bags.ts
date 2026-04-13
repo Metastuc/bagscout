@@ -31,7 +31,7 @@ new Worker(
 
             const [tokens, pools] = await Promise.all([getTokensFromBags({ ...deps, logger }), getPoolsFromBags({ ...deps, logger })]);
             const merged = mergeBagsTokenWithPool(tokens ?? [], pools ?? []);
-            await deps.tokensService.setMultipleTokens(merged);
+            await deps.tokensRepository.upsertTokens(merged);
 
             logger.info({
                 msg: "Finished bags tokens refresh job",

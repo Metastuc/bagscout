@@ -49,10 +49,24 @@ export function formatPercentage(number: number): string {
 }
 
 export function formatPriceToUSD(price: number): string {
+    if (price === 0) return "$0.00";
     if (price >= 1) return `$${price.toFixed(4)}`;
     if (price >= 0.001) return `$${price.toFixed(6)}`;
     if (price >= 0.000001) return `$${price.toFixed(8)}`;
-    return `$${price.toExponential(2)}`;
+
+    // e.g. 0.0000001234 → $0.0₆1234
+    const str = price.toFixed(20);
+    const match = str.match(/^0\.(0+)([1-9]\d*)/);
+    if (!match) return `$${price.toExponential(2)}`;
+
+    const zeroCount = match[1].length;
+    const significant = match[2].slice(0, 4);
+    const subscript = String(zeroCount)
+        .split("")
+        .map((d) => "₀₁₂₃₄₅₆₇₈₉"[parseInt(d)])
+        .join("");
+
+    return `$0.0${subscript}${significant}`;
 }
 
 export function formatTokenPrice(price: number): string {

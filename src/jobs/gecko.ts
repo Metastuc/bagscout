@@ -36,7 +36,8 @@ new Worker(
                 const poolsMap = new Map(pools?.map((pool) => [pool.attributes.address, pool]));
                 for (const poolAddress of poolAddresses) {
                     const poolData = poolsMap.get(poolAddress) ?? null;
-                    await deps.tokensService.updateToken(poolAddress, { data: poolData, fetchedAt: Date.now() });
+                    const geckoData = { data: poolData, fetchedAt: Date.now() };
+                    await deps.tokensService.updateToken(poolAddress, geckoData);
                 }
             } catch (error) {
                 logger.error({ msg: "Error in Gecko data refresh job", data: { message: (error as Error).message, stack: (error as Error).stack } });

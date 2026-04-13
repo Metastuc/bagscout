@@ -3,10 +3,11 @@ import { Queue, Worker } from "bullmq";
 import { redis } from "#/modules/core/redis.ts";
 import { classifyToken } from "#/modules/utils/classify-tokens.ts";
 import { chunkArray } from "#/utils/chunk.ts";
+import { generateLogId } from "#/utils/log.ts";
 import { toTime } from "#/utils/time.ts";
 
 import { withDependencies } from "../modules";
-import { geckoDataQueue } from "./gecko-worker";
+import { geckoDataQueue } from "./gecko";
 
 export const refreshTokenQueue = new Queue("db-tokens-refresh", {
     connection: redis,
@@ -28,7 +29,7 @@ new Worker(
     "db-tokens-refresh",
     async function (job) {
         await withDependencies(async (deps) => {
-            const logger = deps.logger.child({ module: "DB TOKENS REFRESH", eventId: job.id });
+            const logger = deps.logger.child({ module: "DB TOKENS REFRESH", eventId: `${generateLogId()}-${job.id}` });
             logger.info({ msg: "Starting DB tokens refresh job", data: { jobId: job.id, repeatJobKey: job.repeatJobKey } });
 
             const geckoJobCount = await geckoDataQueue.getJobCounts("active", "waiting", "delayed");
@@ -40,6 +41,12 @@ new Worker(
 
             const sortedTokens = (await deps.tokensRepository.getAllTokens())
                 .filter((token) => token.poolAddress)
+                .filter((token) => {
+                    if (classifyToken(token) !== "cold") return true;
+                    return token.geckoData?.fetchedAt
+                        ? Date.now() - token.geckoData.fetchedAt > (toTime({ unit: "hours", value: 1, output: "milliseconds" }) as number)
+                        : true;
+                })
                 .sort((a, b) => {
                     const tierOrder = { hot: 0, warm: 1, cold: 2 };
                     return tierOrder[classifyToken(a)] - tierOrder[classifyToken(b)];

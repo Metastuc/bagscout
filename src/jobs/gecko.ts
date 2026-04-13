@@ -2,6 +2,7 @@ import { Queue, Worker } from "bullmq";
 
 import { redis } from "#/modules/core/redis.ts";
 import { getGeckoPools } from "#/modules/services/gecko.ts";
+import { generateLogId } from "#/utils/log.ts";
 import { toTime } from "#/utils/time.ts";
 
 import { withDependencies } from "../modules";
@@ -24,7 +25,7 @@ new Worker(
     "gecko-data-refresh",
     async function (job) {
         await withDependencies(async (deps) => {
-            const logger = deps.logger.child({ module: "GECKO DATA REFRESH", eventId: job.id });
+            const logger = deps.logger.child({ module: "GECKO DATA REFRESH", eventId: `${generateLogId()}-${job.id}` });
             logger.info({ msg: "Starting Gecko data refresh job", data: { jobId: job.id, repeatJobKey: job.repeatJobKey } });
 
             const { poolAddresses } = job.data as { poolAddresses: Array<string> };

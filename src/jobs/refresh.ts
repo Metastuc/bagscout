@@ -57,20 +57,25 @@ new Worker(
                 BATCH_SIZE,
             );
 
-            for (const batch of poolBatches) {
-                await geckoDataQueue.add("refresh-gecko-data-batch", { poolAddresses: batch });
-            }
-
             logger.info({
-                msg: "Finished DB tokens refresh job",
+                msg: "Refreshing DB tokens",
                 data: {
                     total: sortedTokens.length,
                     batches: poolBatches.length,
                     hot: sortedTokens.filter((t) => classifyToken(t) === "hot").length,
                     warm: sortedTokens.filter((t) => classifyToken(t) === "warm").length,
                     cold: sortedTokens.filter((t) => classifyToken(t) === "cold").length,
-                    estimatedMinutes: Math.round((poolBatches.length * 15) / 60),
+                    estimatedMinutes: `${Math.round((poolBatches.length * 15) / 60)} mins, approximately ${toTime({ unit: "seconds", value: poolBatches.length * 15, output: "dateTime" })}`,
                 },
+            });
+
+            for (const batch of poolBatches) {
+                await geckoDataQueue.add("refresh-gecko-data-batch", { poolAddresses: batch });
+            }
+
+            logger.info({
+                msg: "Finished DB tokens refresh job",
+                data: { jobId: job.id, repeatJobKey: job.repeatJobKey, totalRefreshed: sortedTokens.length },
             });
         });
     },

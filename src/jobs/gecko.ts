@@ -10,14 +10,8 @@ import { withDependencies } from "../modules";
 export const geckoDataQueue = new Queue("gecko-data-refresh", {
     connection: redis,
     defaultJobOptions: {
-        removeOnComplete: {
-            age: toTime({ unit: "hours", value: 1, output: "seconds" }) as number,
-            count: 100,
-        },
-        removeOnFail: {
-            age: toTime({ unit: "days", value: 1, output: "seconds" }) as number,
-            count: 500,
-        },
+        removeOnComplete: { age: toTime({ unit: "hours", value: 1, output: "seconds" }) as number, count: 100 },
+        removeOnFail: { age: toTime({ unit: "days", value: 1, output: "seconds" }) as number, count: 500 },
     },
 });
 

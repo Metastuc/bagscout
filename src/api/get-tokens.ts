@@ -15,10 +15,10 @@ export const getTokensServerFn = createServerFn({ method: "GET" })
         async ({ data: { limit, tab, cursor } }) =>
             await withDependencies(async (deps) => {
                 try {
-                    const tokens = await deps.tokensService.getAllTokens();
+                    const tokens = await deps.tokensRepository.getAllTokens();
 
                     if (!tokens.length) {
-                        deps.logger.warn({ msg: "Cache miss - worker not ready yet" });
+                        deps.logger.warn({ msg: "No tokens found in database" });
                         return { tokens: [], nextCursor: undefined };
                     }
 
@@ -46,7 +46,7 @@ function processTokenData(tokens: Array<MergedBagsTokenWithPool>, activeTab: Dis
                     return (token.status === "PRE_GRAD" || token.status === "MIGRATED") && !!token.geckoData?.data?.attributes;
 
                 case "new":
-                    return token.status === "PRE_LAUNCH" || token.status === "PRE_GRAD";
+                    return token.status === "PRE_GRAD" && !!token.geckoData?.data?.attributes;
 
                 case "top_bags":
                     return !!token.geckoData?.data?.attributes;

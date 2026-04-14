@@ -3,29 +3,6 @@ import { REDIS_KEYS } from "../core/config";
 export function createTokenService(deps: CoreDependencies & Repositories) {
     return {
         /**
-         * Retrieves all tokens from the Redis cache or database.
-         * If the Redis cache is empty, it falls back to retrieving all tokens
-         * from the database.
-         *
-         * @returns {Promise<Array<MergedBagsTokenWithPool>>} A promise that resolves
-         * with an array of MergedBagsTokenWithPool objects.
-         */
-        async getAllTokens() {
-            try {
-                const keys = await deps.redis.smembers(REDIS_KEYS.ALL_TOKENS_KEY);
-                if (keys.length === 0) return await deps.tokensRepository.getAllTokens();
-
-                const values = await deps.redis.mget(keys.map(REDIS_KEYS.TOKEN.KEY));
-                const tokens = values.filter(Boolean).map((value) => JSON.parse(value as string) as MergedBagsTokenWithPool);
-
-                if (tokens.length === 0) return await deps.tokensRepository.getAllTokens();
-                return tokens;
-            } catch {
-                return await deps.tokensRepository.getAllTokens();
-            }
-        },
-
-        /**
          * Retrieves a single token from the Redis cache or database.
          * If the Redis cache contains the token, it will be returned.
          * If the Redis cache does not contain the token, it will fall back

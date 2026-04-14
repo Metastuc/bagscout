@@ -12,14 +12,8 @@ import { geckoDataQueue } from "./gecko";
 export const refreshTokenQueue = new Queue("db-tokens-refresh", {
     connection: redis,
     defaultJobOptions: {
-        removeOnComplete: {
-            age: toTime({ unit: "hours", value: 1, output: "seconds" }) as number,
-            count: 100,
-        },
-        removeOnFail: {
-            age: toTime({ unit: "days", value: 1, output: "seconds" }) as number,
-            count: 500,
-        },
+        removeOnComplete: { age: toTime({ unit: "hours", value: 1, output: "seconds" }) as number, count: 100 },
+        removeOnFail: { age: toTime({ unit: "days", value: 1, output: "seconds" }) as number, count: 500 },
     },
 });
 
